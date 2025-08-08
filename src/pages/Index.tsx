@@ -26,13 +26,15 @@ import PlayerStats from "@/components/PlayerStats";
 import ScoutDashboard from "@/components/ScoutDashboard";
 import MarketOverview from "@/components/MarketOverview";
 import AdminSettings from "@/components/AdminSettings";
+import AddPlayerForm from "@/components/AddPlayerForm";
 import { dbService, Player, AdminSettings as AdminSettingsType } from "@/utils/indexedDB";
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState("players");
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedPosition, setSelectedPosition] = useState("all");
+  const [selectedPosition, setSelectedPosition] = useState("الكل");
   const [players, setPlayers] = useState<Player[]>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
   const [adminSettings, setAdminSettings] = useState<AdminSettingsType>({
     currency: 'EUR',
     showCurrency: true
@@ -249,6 +251,10 @@ const Index = () => {
     setAdminSettings(newSettings);
   };
 
+  const handlePlayerAdded = (newPlayer: Player) => {
+    setPlayers(prev => [...prev, newPlayer]);
+  };
+
   const filteredPlayers = players.filter(player => {
     const matchesSearch = player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          player.club.toLowerCase().includes(searchTerm.toLowerCase());
@@ -264,7 +270,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50" dir="rtl">
       {/* Header */}
-      <header className="bg-white shadow-lg border-b-4 border-blue-500">
+      <header className="bg-white shadow-lg border-b-4 border-blue-500 sticky top-0 z-40">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4 space-x-reverse">
@@ -277,13 +283,16 @@ const Index = () => {
               </div>
             </div>
             <div className="flex items-center space-x-4 space-x-reverse">
-              <Button className="btn-primary">
+              <Button 
+                onClick={() => setShowAddForm(true)}
+                className="btn-primary hover:scale-105 transition-transform"
+              >
                 <Plus className="w-4 h-4 ml-2" />
                 إضافة لاعب
               </Button>
-              <Button variant="outline">
+              <Button variant="outline" className="hover:bg-red-50 hover:text-red-600">
                 <Heart className="w-4 h-4 ml-2" />
-                المفضلة
+                المفضلة ({players.filter(p => p.potential > 8.5).length})
               </Button>
             </div>
           </div>
@@ -292,115 +301,125 @@ const Index = () => {
 
       <div className="container mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8 bg-white shadow-sm">
-            <TabsTrigger value="players" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+          <TabsList className="grid w-full grid-cols-5 mb-8 bg-white shadow-sm rounded-xl border border-slate-200">
+            <TabsTrigger value="players" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white rounded-lg">
               <Users className="w-4 h-4 ml-2" />
-              اللاعبون
+              اللاعبون ({players.length})
             </TabsTrigger>
-            <TabsTrigger value="market" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+            <TabsTrigger value="market" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white rounded-lg">
               <TrendingUp className="w-4 h-4 ml-2" />
               السوق
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-lg">
               <BarChart3 className="w-4 h-4 ml-2" />
               التحليلات
             </TabsTrigger>
-            <TabsTrigger value="dashboard" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+            <TabsTrigger value="dashboard" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white rounded-lg">
               <Award className="w-4 h-4 ml-2" />
               لوحة التحكم
             </TabsTrigger>
-            <TabsTrigger value="admin" className="data-[state=active]:bg-blue-500 data-[state=active]:text-white">
+            <TabsTrigger value="admin" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-gray-500 data-[state=active]:to-gray-600 data-[state=active]:text-white rounded-lg">
               <Settings className="w-4 h-4 ml-2" />
               الإدارة
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="players" className="space-y-6 animate-fade-in">
-            {/* Search and Filters */}
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="relative flex-1">
-                <Search className="absolute right-3 top-3 h-4 w-4 text-slate-400" />
-                <Input
-                  placeholder="البحث في اللاعبين، الأندية، أو المواقع..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pr-10 h-12 border-2 border-slate-200 focus:border-blue-500 text-right"
-                />
-              </div>
-              <div className="flex gap-2">
-                <select
-                  value={selectedPosition}
-                  onChange={(e) => setSelectedPosition(e.target.value)}
-                  className="px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 bg-white min-w-32 text-right"
-                >
-                  {positions.map(pos => (
-                    <option key={pos} value={pos}>
-                      {pos}
-                    </option>
-                  ))}
-                </select>
-                <Button variant="outline" className="px-6">
-                  <Filter className="w-4 h-4 ml-2" />
-                  فلاتر
-                </Button>
+            {/* Enhanced Search and Filters */}
+            <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
+              <div className="flex flex-col md:flex-row gap-4">
+                <div className="relative flex-1">
+                  <Search className="absolute right-3 top-3 h-4 w-4 text-slate-400" />
+                  <Input
+                    placeholder="البحث في اللاعبين، الأندية، أو المواقع..."
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pr-10 h-12 border-2 border-slate-200 focus:border-blue-500 text-right rounded-lg"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <select
+                    value={selectedPosition}
+                    onChange={(e) => setSelectedPosition(e.target.value)}
+                    className="px-4 py-3 border-2 border-slate-200 rounded-lg focus:border-blue-500 bg-white min-w-32 text-right"
+                  >
+                    {positions.map(pos => (
+                      <option key={pos} value={pos}>
+                        {pos}
+                      </option>
+                    ))}
+                  </select>
+                  <Button variant="outline" className="px-6 hover:bg-blue-50">
+                    <Filter className="w-4 h-4 ml-2" />
+                    فلاتر متقدمة
+                  </Button>
+                </div>
               </div>
             </div>
 
-            {/* Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-              <Card className="stat-card border-r-blue-500">
-                <CardContent className="p-4">
+            {/* Enhanced Quick Stats */}
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+              <Card className="stat-card border-r-blue-500 hover:scale-105 transition-all duration-300">
+                <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="text-right">
                       <p className="text-sm font-medium text-slate-600">إجمالي اللاعبين</p>
-                      <p className="text-2xl font-bold text-blue-600">{players.length}</p>
+                      <p className="text-3xl font-bold text-blue-600">{players.length}</p>
+                      <p className="text-xs text-slate-500 mt-1">متوفر حالياً</p>
                     </div>
-                    <Users className="w-8 h-8 text-blue-500" />
+                    <Users className="w-10 h-10 text-blue-500" />
                   </div>
                 </CardContent>
               </Card>
               
-              <Card className="stat-card border-r-green-500">
-                <CardContent className="p-4">
+              <Card className="stat-card border-r-green-500 hover:scale-105 transition-all duration-300">
+                <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="text-right">
                       <p className="text-sm font-medium text-slate-600">النجوم الصاعدة</p>
-                      <p className="text-2xl font-bold text-green-600">{players.filter(p => p.potential > 8.5).length}</p>
+                      <p className="text-3xl font-bold text-green-600">{players.filter(p => p.potential > 8.5).length}</p>
+                      <p className="text-xs text-slate-500 mt-1">إمكانيات عالية</p>
                     </div>
-                    <TrendingUp className="w-8 h-8 text-green-500" />
+                    <TrendingUp className="w-10 h-10 text-green-500" />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="stat-card border-r-yellow-500">
-                <CardContent className="p-4">
+              <Card className="stat-card border-r-yellow-500 hover:scale-105 transition-all duration-300">
+                <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="text-right">
                       <p className="text-sm font-medium text-slate-600">القيمة السوقية</p>
-                      <p className="text-2xl font-bold text-yellow-600">
-                        {adminSettings.showCurrency ? '€1.3م' : 'مخفية'}
+                      <p className="text-3xl font-bold text-yellow-600">
+                        {adminSettings.showCurrency 
+                          ? `€${(players.reduce((sum, p) => sum + p.marketValue, 0) / 1000000).toFixed(1)}م` 
+                          : 'مخفية'}
                       </p>
+                      <p className="text-xs text-slate-500 mt-1">إجمالي القيم</p>
                     </div>
-                    <Target className="w-8 h-8 text-yellow-500" />
+                    <Target className="w-10 h-10 text-yellow-500" />
                   </div>
                 </CardContent>
               </Card>
 
-              <Card className="stat-card border-r-purple-500">
-                <CardContent className="p-4">
+              <Card className="stat-card border-r-purple-500 hover:scale-105 transition-all duration-300">
+                <CardContent className="p-6">
                   <div className="flex items-center justify-between">
                     <div className="text-right">
-                      <p className="text-sm font-medium text-slate-600">المفضلة</p>
-                      <p className="text-2xl font-bold text-purple-600">12</p>
+                      <p className="text-sm font-medium text-slate-600">متوسط التقييم</p>
+                      <p className="text-3xl font-bold text-purple-600">
+                        {(players.reduce((sum, p) => sum + p.rating, 0) / players.length).toFixed(1)}
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">من 10 نقاط</p>
                     </div>
-                    <Heart className="w-8 h-8 text-purple-500" />
+                    <Star className="w-10 h-10 text-purple-500" />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Player Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Player Cards with improved layout */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredPlayers.map((player, index) => (
                 <div key={player.id} className="animate-slide-up" style={{animationDelay: `${index * 0.1}s`}}>
                   <PlayerCard 
@@ -413,10 +432,17 @@ const Index = () => {
             </div>
 
             {filteredPlayers.length === 0 && (
-              <div className="text-center py-12">
-                <Search className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-slate-600 mb-2">لم يتم العثور على لاعبين</h3>
-                <p className="text-slate-500">حاول تعديل معايير البحث</p>
+              <div className="text-center py-16 bg-white rounded-xl shadow-lg">
+                <Search className="w-20 h-20 text-slate-300 mx-auto mb-6" />
+                <h3 className="text-2xl font-semibold text-slate-600 mb-4">لم يتم العثور على لاعبين</h3>
+                <p className="text-slate-500 mb-6">حاول تعديل معايير البحث أو إضافة لاعبين جدد</p>
+                <Button 
+                  onClick={() => setShowAddForm(true)}
+                  className="btn-primary"
+                >
+                  <Plus className="w-4 h-4 ml-2" />
+                  إضافة لاعب جديد
+                </Button>
               </div>
             )}
           </TabsContent>
@@ -438,6 +464,14 @@ const Index = () => {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Add Player Form Modal */}
+      {showAddForm && (
+        <AddPlayerForm 
+          onClose={() => setShowAddForm(false)}
+          onPlayerAdded={handlePlayerAdded}
+        />
+      )}
     </div>
   );
 };
