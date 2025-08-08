@@ -20,7 +20,7 @@ interface PlayerStatsProps {
 }
 
 const PlayerStats = ({ players }: PlayerStatsProps) => {
-  // Prepare data for age distribution chart
+  // تحضير بيانات توزيع الأعمار
   const ageDistribution = players.reduce((acc: any, player) => {
     const ageGroup = `${Math.floor(player.age / 2) * 2}-${Math.floor(player.age / 2) * 2 + 1}`;
     acc[ageGroup] = (acc[ageGroup] || 0) + 1;
@@ -32,7 +32,7 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
     players: count
   }));
 
-  // Prepare data for position distribution
+  // تحضير بيانات توزيع المراكز
   const positionDistribution = players.reduce((acc: any, player) => {
     const mainPosition = player.position.split('/')[0];
     acc[mainPosition] = (acc[mainPosition] || 0) + 1;
@@ -44,30 +44,50 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
     count
   }));
 
-  // Market value distribution
+  // توزيع القيمة السوقية
   const marketValueData = players.map(player => ({
     name: player.name.split(' ')[0],
     value: player.marketValue / 1000,
     rating: player.rating
   }));
 
-  // Sample radar chart data for player comparison
+  // بيانات مقارنة اللاعبين
   const radarData = [
-    { attribute: 'Pace', playerA: 88, playerB: 84, fullMark: 100 },
-    { attribute: 'Shooting', playerA: 82, playerB: 91, fullMark: 100 },
-    { attribute: 'Passing', playerA: 85, playerB: 70, fullMark: 100 },
-    { attribute: 'Dribbling', playerA: 90, playerB: 82, fullMark: 100 },
-    { attribute: 'Defense', playerA: 45, playerB: 35, fullMark: 100 },
-    { attribute: 'Physical', playerA: 78, playerB: 85, fullMark: 100 }
+    { attribute: 'السرعة', playerA: 88, playerB: 84, fullMark: 100 },
+    { attribute: 'التسديد', playerA: 82, playerB: 91, fullMark: 100 },
+    { attribute: 'التمرير', playerA: 85, playerB: 70, fullMark: 100 },
+    { attribute: 'المراوغة', playerA: 90, playerB: 82, fullMark: 100 },
+    { attribute: 'الدفاع', playerA: 45, playerB: 35, fullMark: 100 },
+    { attribute: 'القوة البدنية', playerA: 78, playerB: 85, fullMark: 100 }
+  ];
+
+  // إحصائيات متقدمة
+  const advancedStats = [
+    { title: 'متوسط العمر', value: (players.reduce((sum, p) => sum + p.age, 0) / players.length).toFixed(1) + ' سنة' },
+    { title: 'أعلى قيمة سوقية', value: `€${Math.max(...players.map(p => p.marketValue / 1000)).toFixed(0)}ألف` },
+    { title: 'أفضل تقييم', value: Math.max(...players.map(p => p.rating)).toFixed(1) + '/10' },
+    { title: 'متوسط الإمكانيات', value: (players.reduce((sum, p) => sum + p.potential, 0) / players.length).toFixed(1) + '/10' }
   ];
 
   return (
     <div className="space-y-6">
+      {/* إحصائيات سريعة */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        {advancedStats.map((stat, index) => (
+          <Card key={index} className="card-scout hover:scale-105 transition-transform">
+            <CardContent className="p-6 text-center">
+              <p className="text-sm font-medium text-slate-600 mb-2">{stat.title}</p>
+              <p className="text-2xl font-bold text-gradient-primary">{stat.value}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Age Distribution */}
+        {/* توزيع الأعمار */}
         <Card className="card-scout">
           <CardHeader>
-            <CardTitle className="text-gradient-primary">Age Distribution</CardTitle>
+            <CardTitle className="text-gradient-primary text-right">توزيع الأعمار</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -79,8 +99,10 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
                   contentStyle={{ 
                     backgroundColor: '#f8fafc', 
                     border: '1px solid #e2e8f0',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    direction: 'rtl'
                   }}
+                  formatter={(value: any) => [value, 'عدد اللاعبين']}
                 />
                 <Bar dataKey="players" fill="url(#gradient1)" radius={[4, 4, 0, 0]} />
                 <defs>
@@ -94,10 +116,10 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
           </CardContent>
         </Card>
 
-        {/* Position Distribution */}
+        {/* توزيع المراكز */}
         <Card className="card-scout">
           <CardHeader>
-            <CardTitle className="text-gradient-primary">Position Distribution</CardTitle>
+            <CardTitle className="text-gradient-primary text-right">توزيع المراكز</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={250}>
@@ -109,8 +131,10 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
                   contentStyle={{ 
                     backgroundColor: '#f8fafc', 
                     border: '1px solid #e2e8f0',
-                    borderRadius: '8px'
+                    borderRadius: '8px',
+                    direction: 'rtl'
                   }}
+                  formatter={(value: any) => [value, 'عدد اللاعبين']}
                 />
                 <Bar dataKey="count" fill="url(#gradient2)" radius={[4, 4, 0, 0]} />
                 <defs>
@@ -125,10 +149,10 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
         </Card>
       </div>
 
-      {/* Market Value Analysis */}
+      {/* تحليل القيمة السوقية */}
       <Card className="card-scout">
         <CardHeader>
-          <CardTitle className="text-gradient-primary">Market Value vs Rating Analysis</CardTitle>
+          <CardTitle className="text-gradient-primary text-right">تحليل القيمة السوقية مقابل التقييم</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -140,11 +164,12 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
                 contentStyle={{ 
                   backgroundColor: '#f8fafc', 
                   border: '1px solid #e2e8f0',
-                  borderRadius: '8px'
+                  borderRadius: '8px',
+                  direction: 'rtl'
                 }}
                 formatter={(value: any, name: any) => [
-                  name === 'value' ? `€${value}K` : value,
-                  name === 'value' ? 'Market Value' : 'Rating'
+                  name === 'value' ? `€${value}ألف` : value,
+                  name === 'value' ? 'القيمة السوقية' : 'التقييم'
                 ]}
               />
               <Bar dataKey="value" fill="url(#gradient3)" radius={[4, 4, 0, 0]} />
@@ -159,10 +184,10 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
         </CardContent>
       </Card>
 
-      {/* Player Comparison Radar */}
+      {/* مقارنة اللاعبين */}
       <Card className="card-scout">
         <CardHeader>
-          <CardTitle className="text-gradient-primary">Player Comparison</CardTitle>
+          <CardTitle className="text-gradient-primary text-right">مقارنة اللاعبين</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={400}>
@@ -175,7 +200,7 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
                 tick={{ fill: '#64748b', fontSize: 10 }} 
               />
               <Radar
-                name="Adam Medour"
+                name="آدم مدور"
                 dataKey="playerA"
                 stroke="#3b82f6"
                 fill="#3b82f6"
@@ -183,7 +208,7 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
                 strokeWidth={2}
               />
               <Radar
-                name="Mustafa Faqih"
+                name="مصطفى فقيه"
                 dataKey="playerB"
                 stroke="#10b981"
                 fill="#10b981"
@@ -193,7 +218,8 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
               <Legend 
                 wrapperStyle={{ 
                   paddingTop: '20px',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  direction: 'rtl'
                 }}
               />
             </RadarChart>

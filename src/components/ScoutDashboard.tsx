@@ -20,80 +20,80 @@ const ScoutDashboard = () => {
   const upcomingMatches = [
     {
       id: 1,
-      homeTeam: "Ittihad Mawahib Setif",
-      awayTeam: "JS Saoura",
+      homeTeam: "اتحاد مواهب سطيف",
+      awayTeam: "شباب ساورة",
       date: "2024-08-15",
       time: "19:00",
-      venue: "Stade du 8 Mai 1945",
-      playersToWatch: ["Adam Medour", "Zakaria Samara"]
+      venue: "ملعب 8 مايو 1945",
+      playersToWatch: ["آدم مدور", "زكرياء سمارة"]
     },
     {
       id: 2,
-      homeTeam: "Paradou Academy",
-      awayTeam: "MC Alger",
+      homeTeam: "أكاديمية بارادو",
+      awayTeam: "مولودية الجزائر",
       date: "2024-08-16",
       time: "16:00",
-      venue: "Stade Omar Benrabah",
-      playersToWatch: ["Mustafa Faqih"]
+      venue: "ملعب عمر بن ربح",
+      playersToWatch: ["مصطفى فقيه"]
     },
     {
       id: 3,
-      homeTeam: "Nasr Hussein Dey",
-      awayTeam: "ES Setif",
+      homeTeam: "نصر حسين داي",
+      awayTeam: "وفاق سطيف",
       date: "2024-08-17",
       time: "18:30",
-      venue: "Stade 20 Août 1955",
-      playersToWatch: ["Ismail Hallam", "Wael Chouyit"]
+      venue: "ملعب 20 أوت 1955",
+      playersToWatch: ["إسماعيل حلام", "وائل شويط"]
     }
   ];
 
   const recentReports = [
     {
-      player: "Adam Medour",
+      player: "آدم مدور",
       rating: 8.5,
-      status: "completed",
+      status: "مكتمل",
       date: "2024-08-10",
-      highlights: "Excellent dribbling, creative passing, needs work on defensive contribution"
+      highlights: "مراوغة ممتازة، تمريرات إبداعية، يحتاج تحسين المساهمة الدفاعية"
     },
     {
-      player: "Omar Midoun",
+      player: "عمر ميدون",
       rating: 8.2,
-      status: "completed",
+      status: "مكتمل",
       date: "2024-08-09",
-      highlights: "Clinical finishing, good positioning, strong physical presence"
+      highlights: "لمسة نهائية سريرية، تموضع جيد، حضور بدني قوي"
     },
     {
-      player: "Yasser Arafat Latroush",
+      player: "ياسر عرفات لطروش",
       rating: 7.8,
-      status: "pending",
+      status: "قيد المراجعة",
       date: "2024-08-08",
-      highlights: "Fast winger with good crossing ability"
+      highlights: "جناح سريع مع قدرة جيدة على العرضيات"
     }
   ];
 
   const watchlistPlayers = [
-    { name: "Fares Boukhtalya", position: "CAM", club: "Raid El Qoubba", age: 16, priority: "high" },
-    { name: "Hicham Qarahli", position: "CAM", club: "Union Khemis El Khechna", age: 18, priority: "medium" },
-    { name: "Walid Ghadban", position: "RW", club: "Mouloudia Batna", age: 17, priority: "high" },
-    { name: "Riad Boursali", position: "RW", club: "Union Alger", age: 19, priority: "low" }
+    { name: "فارس بوخطالية", position: "صانع ألعاب", club: "رائد القبة", age: 16, priority: "عالية" },
+    { name: "هشام قراحلي", position: "صانع ألعاب", club: "اتحاد الخميس", age: 18, priority: "متوسطة" },
+    { name: "وليد غدبان", position: "جناح أيمن", club: "مولودية باتنة", age: 17, priority: "عالية" },
+    { name: "رياض بورسالي", position: "جناح أيمن", club: "اتحاد الجزائر", age: 19, priority: "منخفضة" }
   ];
 
   const stats = [
-    { title: "Matches Scouted", value: 47, icon: Eye, color: "text-blue-600" },
-    { title: "Reports Completed", value: 23, icon: CheckCircle, color: "text-green-600" },
-    { title: "Players Tracked", value: 89, icon: Users, color: "text-purple-600" },
-    { title: "Recommendations", value: 12, icon: Target, color: "text-yellow-600" }
+    { title: "المباريات المُراقبة", value: 47, icon: Eye, color: "text-blue-600" },
+    { title: "التقارير المكتملة", value: 23, icon: CheckCircle, color: "text-green-600" },
+    { title: "اللاعبون المتتبعون", value: 89, icon: Users, color: "text-purple-600" },
+    { title: "التوصيات", value: 12, icon: Target, color: "text-yellow-600" }
   ];
 
   return (
     <div className="space-y-6">
-      {/* Scout Stats */}
+      {/* إحصائيات الاستكشاف */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
-          <Card key={index} className="card-scout">
+          <Card key={index} className="card-scout hover:scale-105 transition-transform">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div>
+                <div className="text-right">
                   <p className="text-sm font-medium text-slate-600">{stat.title}</p>
                   <p className="text-2xl font-bold text-slate-800">{stat.value}</p>
                 </div>
@@ -105,39 +105,39 @@ const ScoutDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Upcoming Matches */}
+        {/* المباريات القادمة */}
         <Card className="card-scout">
           <CardHeader>
-            <CardTitle className="text-gradient-primary flex items-center">
-              <Calendar className="w-5 h-5 mr-2" />
-              Upcoming Matches
+            <CardTitle className="text-gradient-primary flex items-center justify-end">
+              <Calendar className="w-5 h-5 ml-2" />
+              المباريات القادمة
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {upcomingMatches.map((match) => (
-              <div key={match.id} className="p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200">
+              <div key={match.id} className="p-4 bg-gradient-to-l from-slate-50 to-slate-100 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start mb-3">
-                  <div>
+                  <Button size="sm" className="btn-primary">
+                    <Eye className="w-4 h-4 ml-1" />
+                    مراقبة
+                  </Button>
+                  <div className="text-right">
                     <h4 className="font-semibold text-slate-800">
-                      {match.homeTeam} vs {match.awayTeam}
+                      {match.homeTeam} ضد {match.awayTeam}
                     </h4>
-                    <div className="flex items-center text-sm text-slate-600 mt-1">
-                      <Calendar className="w-4 h-4 mr-1" />
-                      {new Date(match.date).toLocaleDateString()} at {match.time}
+                    <div className="flex items-center text-sm text-slate-600 mt-1 justify-end">
+                      <span>{new Date(match.date).toLocaleDateString('ar')} في {match.time}</span>
+                      <Calendar className="w-4 h-4 ml-1" />
                     </div>
-                    <div className="flex items-center text-sm text-slate-600">
-                      <MapPin className="w-4 h-4 mr-1" />
-                      {match.venue}
+                    <div className="flex items-center text-sm text-slate-600 justify-end">
+                      <span>{match.venue}</span>
+                      <MapPin className="w-4 h-4 ml-1" />
                     </div>
                   </div>
-                  <Button size="sm" className="btn-primary">
-                    <Eye className="w-4 h-4 mr-1" />
-                    Scout
-                  </Button>
                 </div>
                 <div>
-                  <p className="text-xs font-semibold text-slate-600 mb-2">Players to Watch:</p>
-                  <div className="flex flex-wrap gap-2">
+                  <p className="text-xs font-semibold text-slate-600 mb-2 text-right">لاعبون للمراقبة:</p>
+                  <div className="flex flex-wrap gap-2 justify-end">
                     {match.playersToWatch.map((player) => (
                       <Badge key={player} variant="secondary" className="text-xs">
                         {player}
@@ -150,69 +150,69 @@ const ScoutDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* Recent Reports */}
+        {/* التقارير الأخيرة */}
         <Card className="card-scout">
           <CardHeader>
-            <CardTitle className="text-gradient-primary flex items-center">
-              <BookOpen className="w-5 h-5 mr-2" />
-              Recent Reports
+            <CardTitle className="text-gradient-primary flex items-center justify-end">
+              <BookOpen className="w-5 h-5 ml-2" />
+              التقارير الأخيرة
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {recentReports.map((report, index) => (
-              <div key={index} className="p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200">
+              <div key={index} className="p-4 bg-gradient-to-l from-slate-50 to-slate-100 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-semibold text-slate-800">{report.player}</h4>
                   <div className="flex items-center">
-                    {report.status === 'completed' ? (
-                      <CheckCircle className="w-4 h-4 text-green-500 mr-1" />
+                    {report.status === 'مكتمل' ? (
+                      <CheckCircle className="w-4 h-4 text-green-500 ml-1" />
                     ) : (
-                      <AlertCircle className="w-4 h-4 text-yellow-500 mr-1" />
+                      <AlertCircle className="w-4 h-4 text-yellow-500 ml-1" />
                     )}
-                    <span className="text-sm text-slate-600 capitalize">{report.status}</span>
+                    <span className="text-sm text-slate-600">{report.status}</span>
                   </div>
+                  <h4 className="font-semibold text-slate-800">{report.player}</h4>
                 </div>
-                <div className="flex items-center mb-2">
-                  <Star className="w-4 h-4 text-yellow-500 mr-1" />
-                  <span className="font-semibold text-slate-700">{report.rating}/10</span>
+                <div className="flex items-center mb-2 justify-end">
                   <span className="text-sm text-slate-500 ml-2">
-                    {new Date(report.date).toLocaleDateString()}
+                    {new Date(report.date).toLocaleDateString('ar')}
                   </span>
+                  <span className="font-semibold text-slate-700">{report.rating}/10</span>
+                  <Star className="w-4 h-4 text-yellow-500 ml-1" />
                 </div>
-                <p className="text-sm text-slate-600">{report.highlights}</p>
+                <p className="text-sm text-slate-600 text-right">{report.highlights}</p>
               </div>
             ))}
           </CardContent>
         </Card>
       </div>
 
-      {/* Watchlist */}
+      {/* قائمة المراقبة */}
       <Card className="card-scout">
         <CardHeader>
-          <CardTitle className="text-gradient-primary flex items-center">
-            <Target className="w-5 h-5 mr-2" />
-            Priority Watchlist
+          <CardTitle className="text-gradient-primary flex items-center justify-end">
+            <Target className="w-5 h-5 ml-2" />
+            قائمة المراقبة ذات الأولوية
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {watchlistPlayers.map((player, index) => (
-              <div key={index} className="p-4 bg-gradient-to-r from-slate-50 to-slate-100 rounded-lg border border-slate-200">
+              <div key={index} className="p-4 bg-gradient-to-l from-slate-50 to-slate-100 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
                 <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-semibold text-slate-800">{player.name}</h4>
-                    <p className="text-sm text-slate-600">{player.position} • {player.club}</p>
-                    <p className="text-xs text-slate-500">{player.age} years old</p>
-                  </div>
                   <Badge 
                     className={`
-                      ${player.priority === 'high' ? 'bg-red-100 text-red-800' : 
-                        player.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' : 
+                      ${player.priority === 'عالية' ? 'bg-red-100 text-red-800' : 
+                        player.priority === 'متوسطة' ? 'bg-yellow-100 text-yellow-800' : 
                         'bg-green-100 text-green-800'}
                     `}
                   >
                     {player.priority}
                   </Badge>
+                  <div className="text-right">
+                    <h4 className="font-semibold text-slate-800">{player.name}</h4>
+                    <p className="text-sm text-slate-600">{player.position} • {player.club}</p>
+                    <p className="text-xs text-slate-500">{player.age} سنة</p>
+                  </div>
                 </div>
               </div>
             ))}
