@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import { ScoutDashboard } from "@/components/ScoutDashboard";
-import { PlayerCard } from "@/components/PlayerCard";
-import { AddPlayerForm } from "@/components/AddPlayerForm";
-import { AdminSettings } from "@/components/AdminSettings";
-import { MarketOverview } from "@/components/MarketOverview";
+import ScoutDashboard from "@/components/ScoutDashboard";
+import PlayerCard from "@/components/PlayerCard";
+import AddPlayerForm from "@/components/AddPlayerForm";
+import AdminSettings from "@/components/AdminSettings";
+import MarketOverview from "@/components/MarketOverview";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
