@@ -5,15 +5,9 @@ import { Button } from "@/components/ui/button";
 import { 
   MapPin, 
   Calendar, 
-  TrendingUp, 
   Star, 
-  Heart, 
   Eye,
-  MoreHorizontal,
-  User,
-  Trophy,
-  Target,
-  AlertTriangle
+  User
 } from "lucide-react";
 
 interface PlayerMetrics {
@@ -59,18 +53,19 @@ interface PlayerCardProps {
   player: Player;
   currency: string;
   showCurrency: boolean;
+  onViewDetails?: (player: Player) => void;
 }
 
-const PlayerCard = ({ player, currency, showCurrency }: PlayerCardProps) => {
+const PlayerCard = ({ player, currency, showCurrency, onViewDetails }: PlayerCardProps) => {
   const formatCurrency = (value: number) => {
-    if (!showCurrency) return '';
+    if (!showCurrency) return 'مخفية';
     
     const symbol = currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'DZD' ? 'دج' : currency;
     
     if (value >= 1000000) {
-      return `${(value / 1000000).toFixed(1)} مليون ${symbol}`;
+      return `${symbol}${(value / 1000000).toFixed(1)}م`;
     }
-    return `${(value / 1000).toFixed(0)} ألف ${symbol}`;
+    return `${symbol}${(value / 1000).toFixed(0)}ألف`;
   };
 
   const getPositionColor = (position: string) => {
@@ -83,13 +78,13 @@ const PlayerCard = ({ player, currency, showCurrency }: PlayerCardProps) => {
   };
 
   const getRatingColor = (rating: number) => {
-    if (rating >= 8.5) return 'text-green-600 bg-green-100';
-    if (rating >= 7.5) return 'text-blue-600 bg-blue-100';
-    if (rating >= 6.5) return 'text-yellow-600 bg-yellow-100';
-    return 'text-red-600 bg-red-100';
+    if (rating >= 8.5) return 'text-emerald-700 bg-emerald-50';
+    if (rating >= 7.5) return 'text-blue-700 bg-blue-50';
+    if (rating >= 6.5) return 'text-amber-700 bg-amber-50';
+    return 'text-red-700 bg-red-50';
   };
 
-  const getTopMetrics = (metrics: PlayerMetrics) => {
+  const getTopMetric = (metrics: PlayerMetrics) => {
     const metricNames: { [key: string]: string } = {
       pace: 'السرعة',
       shooting: 'التسديد',
@@ -109,146 +104,103 @@ const PlayerCard = ({ player, currency, showCurrency }: PlayerCardProps) => {
       name: metricNames[key] || key,
       value
     }));
-    return metricEntries.sort((a, b) => b.value - a.value).slice(0, 3);
+    return metricEntries.sort((a, b) => b.value - a.value)[0];
   };
 
-  const topMetrics = getTopMetrics(player.metrics);
+  const topMetric = getTopMetric(player.metrics);
 
   return (
-    <Card className="card-scout group hover:scale-[1.02] transition-all duration-300 overflow-hidden" dir="rtl">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            {player.image && (
-              <div className="w-16 h-16 rounded-full overflow-hidden mb-3 mx-auto">
+    <Card className="bg-white border border-slate-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 overflow-hidden group" dir="rtl">
+      <CardHeader className="pb-4">
+        <div className="flex items-start gap-4">
+          <div className="flex-1 text-right">
+            <div className="flex items-center justify-between mb-2">
+              <Badge className={`${getPositionColor(player.position)} text-xs font-medium`}>
+                {player.position}
+              </Badge>
+              <h3 className="text-lg font-bold text-slate-900">{player.name}</h3>
+            </div>
+            
+            <div className="space-y-1 text-sm text-slate-600">
+              <div className="flex items-center justify-end gap-1">
+                <span>{player.age} سنة</span>
+                <Calendar className="w-4 h-4" />
+              </div>
+              <div className="flex items-center justify-end gap-1">
+                <span>{player.location}</span>
+                <MapPin className="w-4 h-4" />
+              </div>
+            </div>
+          </div>
+          
+          <div className="flex-shrink-0">
+            {player.image ? (
+              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-200">
                 <img 
                   src={player.image} 
                   alt={player.name}
                   className="w-full h-full object-cover"
                 />
               </div>
+            ) : (
+              <div className="w-16 h-16 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center">
+                <User className="w-6 h-6 text-slate-400" />
+              </div>
             )}
-            <h3 className="text-xl font-bold text-slate-800 mb-1 text-center">{player.name}</h3>
-            <div className="flex items-center gap-2 text-sm text-slate-600 mb-2 justify-center">
-              <Calendar className="w-4 h-4" />
-              <span>{player.age} سنة</span>
-            </div>
-            <div className="flex items-center gap-2 text-sm text-slate-600 justify-center">
-              <MapPin className="w-4 h-4" />
-              <span>{player.location}</span>
-            </div>
-          </div>
-          <div className="text-center">
-            <Badge className={`${getPositionColor(player.position)} font-semibold mb-2`}>
-              {player.position}
-            </Badge>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* Club and Rating */}
+        {/* النادي والتقييم */}
         <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-slate-700">{player.club}</p>
-          <div className={`px-3 py-1 rounded-full text-sm font-bold ${getRatingColor(player.rating)}`}>
-            <Star className="w-3 h-3 inline ml-1" />
-            {player.rating}
+          <div className={`px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-1 ${getRatingColor(player.rating)}`}>
+            <span>{player.rating.toFixed(1)}</span>
+            <Star className="w-4 h-4 fill-current" />
           </div>
+          <p className="text-sm font-medium text-slate-700">{player.club}</p>
         </div>
 
-        {/* Market Value and Potential */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="text-center p-3 bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg">
-            <p className="text-xs text-slate-600 mb-1">القيمة السوقية</p>
-            <p className="text-lg font-bold text-blue-600">
-              {showCurrency ? formatCurrency(player.marketValue) : 'مخفية'}
+        {/* القيمة السوقية والمهارة الأفضل */}
+        <div className="grid grid-cols-2 gap-3">
+          <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+            <p className="text-xs text-blue-700 font-medium mb-1">القيمة السوقية</p>
+            <p className="text-sm font-bold text-blue-900">
+              {formatCurrency(player.marketValue)}
             </p>
           </div>
-          <div className="text-center p-3 bg-gradient-to-r from-green-50 to-green-100 rounded-lg">
-            <p className="text-xs text-slate-600 mb-1">الإمكانيات</p>
-            <div className="flex items-center justify-center">
-              <TrendingUp className="w-4 h-4 text-green-600 ml-1" />
-              <span className="text-lg font-bold text-green-600">{player.potential}</span>
-            </div>
+          
+          <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+            <p className="text-xs text-green-700 font-medium mb-1">أفضل مهارة</p>
+            <p className="text-xs text-green-900 font-medium">{topMetric?.name}</p>
+            <p className="text-sm font-bold text-green-900">{topMetric?.value}</p>
           </div>
         </div>
 
-        {/* Physical Stats */}
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="flex items-center justify-between">
-            <span className="text-slate-600">الطول:</span>
-            <span className="font-medium">{player.height}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-slate-600">الوزن:</span>
-            <span className="font-medium">{player.weight}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-slate-600">القدم المفضلة:</span>
-            <span className="font-medium">{player.preferredFoot}</span>
-          </div>
-          <div className="flex items-center justify-between">
-            <span className="text-slate-600">الجنسية:</span>
-            <span className="font-medium">{player.nationality}</span>
-          </div>
-        </div>
-
-        {/* Performance Stats */}
-        <div className="grid grid-cols-4 gap-2 text-center text-sm">
-          <div className="p-2 bg-green-50 rounded">
-            <Trophy className="w-4 h-4 mx-auto text-green-600 mb-1" />
-            <p className="font-bold text-green-600">{player.goals}</p>
+        {/* الإحصائيات الأساسية */}
+        <div className="flex justify-center gap-6 py-2 text-center">
+          <div>
+            <p className="text-lg font-bold text-green-600">{player.goals}</p>
             <p className="text-xs text-slate-600">أهداف</p>
           </div>
-          <div className="p-2 bg-blue-50 rounded">
-            <Target className="w-4 h-4 mx-auto text-blue-600 mb-1" />
-            <p className="font-bold text-blue-600">{player.assists}</p>
-            <p className="text-xs text-slate-600">تمريرات</p>
+          <div>
+            <p className="text-lg font-bold text-blue-600">{player.assists}</p>
+            <p className="text-xs text-slate-600">تمريرات حاسمة</p>
           </div>
-          <div className="p-2 bg-yellow-50 rounded">
-            <AlertTriangle className="w-4 h-4 mx-auto text-yellow-600 mb-1" />
-            <p className="font-bold text-yellow-600">{player.yellowCards}</p>
-            <p className="text-xs text-slate-600">صفراء</p>
-          </div>
-          <div className="p-2 bg-red-50 rounded">
-            <AlertTriangle className="w-4 h-4 mx-auto text-red-600 mb-1" />
-            <p className="font-bold text-red-600">{player.redCards}</p>
-            <p className="text-xs text-slate-600">حمراء</p>
+          <div>
+            <p className="text-lg font-bold text-slate-600">{player.appearances}</p>
+            <p className="text-xs text-slate-600">مباراة</p>
           </div>
         </div>
 
-        {/* Top Metrics */}
-        <div className="space-y-2">
-          <p className="text-xs font-semibold text-slate-600 uppercase tracking-wide">أفضل المهارات</p>
-          {topMetrics.map((metric) => (
-            <div key={metric.name} className="player-metric">
-              <span className="text-sm font-medium text-slate-700">{metric.name}</span>
-              <div className="flex items-center">
-                <div className="w-16 h-2 bg-slate-200 rounded-full ml-2">
-                  <div 
-                    className="h-2 bg-gradient-to-r from-blue-500 to-blue-600 rounded-full"
-                    style={{ width: `${metric.value}%` }}
-                  />
-                </div>
-                <span className="text-sm font-bold text-slate-800">{metric.value}</span>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
-          <Button className="flex-1 btn-primary">
-            <Eye className="w-4 h-4 ml-2" />
-            عرض التفاصيل
-          </Button>
-          <Button variant="outline" className="hover:bg-red-50 hover:text-red-600">
-            <Heart className="w-4 h-4" />
-          </Button>
-          <Button variant="outline">
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
-        </div>
+        {/* زر عرض التفاصيل */}
+        <Button 
+          className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium"
+          onClick={() => onViewDetails?.(player)}
+        >
+          <Eye className="w-4 h-4 ml-2" />
+          عرض التفاصيل الكاملة
+        </Button>
       </CardContent>
     </Card>
   );
