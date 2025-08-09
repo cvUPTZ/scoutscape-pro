@@ -19,7 +19,8 @@ import {
   Eye,
   Heart,
   Plus,
-  Settings
+  Settings,
+  Menu
 } from "lucide-react";
 import PlayerCard from "@/components/PlayerCard";
 import PlayerStats from "@/components/PlayerStats";
@@ -35,6 +36,7 @@ const Index = () => {
   const [selectedPosition, setSelectedPosition] = useState("الكل");
   const [players, setPlayers] = useState<Player[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [adminSettings, setAdminSettings] = useState<AdminSettingsType>({
     currency: 'EUR',
     showCurrency: true
@@ -269,75 +271,119 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50" dir="rtl">
-      {/* Header */}
+      {/* Header - Mobile Responsive */}
       <header className="bg-white shadow-lg border-b-4 border-blue-500 sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4 space-x-reverse">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                <Eye className="w-7 h-7 text-white" />
+            <div className="flex items-center space-x-2 sm:space-x-4 space-x-reverse">
+              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+                <Eye className="w-5 h-5 sm:w-7 sm:h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gradient-primary">سكاوت برو</h1>
-                <p className="text-sm text-slate-600">منصة الاستكشاف الاحترافية لكرة القدم</p>
+                <h1 className="text-lg sm:text-2xl font-bold text-gradient-primary">سكاوت برو</h1>
+                <p className="text-xs sm:text-sm text-slate-600 hidden sm:block">منصة الاستكشاف الاحترافية لكرة القدم</p>
               </div>
             </div>
-            <div className="flex items-center space-x-4 space-x-reverse">
+            <div className="flex items-center space-x-2 sm:space-x-4 space-x-reverse">
               <Button 
                 onClick={() => setShowAddForm(true)}
-                className="btn-primary hover:scale-105 transition-transform"
+                size="sm"
+                className="btn-primary hover:scale-105 transition-transform hidden sm:flex"
               >
                 <Plus className="w-4 h-4 ml-2" />
                 إضافة لاعب
               </Button>
-              <Button variant="outline" className="hover:bg-red-50 hover:text-red-600">
+              <Button 
+                onClick={() => setShowAddForm(true)}
+                size="sm"
+                className="btn-primary hover:scale-105 transition-transform sm:hidden"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" size="sm" className="hover:bg-red-50 hover:text-red-600 hidden sm:flex">
                 <Heart className="w-4 h-4 ml-2" />
                 المفضلة ({players.filter(p => p.potential > 8.5).length})
+              </Button>
+              <Button variant="outline" size="sm" className="hover:bg-red-50 hover:text-red-600 sm:hidden">
+                <Heart className="w-4 h-4" />
               </Button>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8">
+      <div className="container mx-auto px-4 sm:px-6 py-4 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-5 mb-8 bg-white shadow-sm rounded-xl border border-slate-200">
-            <TabsTrigger value="players" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white rounded-lg">
-              <Users className="w-4 h-4 ml-2" />
-              اللاعبون ({players.length})
+          {/* Mobile-optimized Tab List */}
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 mb-6 sm:mb-8 bg-white shadow-sm rounded-xl border border-slate-200 h-auto">
+            <TabsTrigger value="players" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white rounded-lg text-xs sm:text-sm p-2 sm:p-3">
+              <Users className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
+              <span className="hidden sm:inline">اللاعبون</span>
+              <span className="sm:hidden">لاعبون</span>
+              <span className="hidden sm:inline"> ({players.length})</span>
             </TabsTrigger>
-            <TabsTrigger value="market" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white rounded-lg">
-              <TrendingUp className="w-4 h-4 ml-2" />
+            <TabsTrigger value="market" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-green-600 data-[state=active]:text-white rounded-lg text-xs sm:text-sm p-2 sm:p-3">
+              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
               السوق
             </TabsTrigger>
-            <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-lg">
-              <BarChart3 className="w-4 h-4 ml-2" />
-              التحليلات
+            <TabsTrigger value="analytics" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-purple-600 data-[state=active]:text-white rounded-lg text-xs sm:text-sm p-2 sm:p-3">
+              <BarChart3 className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
+              <span className="hidden sm:inline">التحليلات</span>
+              <span className="sm:hidden">تحليل</span>
             </TabsTrigger>
-            <TabsTrigger value="dashboard" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white rounded-lg">
-              <Award className="w-4 h-4 ml-2" />
-              لوحة التحكم
+            <TabsTrigger value="dashboard" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-orange-500 data-[state=active]:to-orange-600 data-[state=active]:text-white rounded-lg text-xs sm:text-sm p-2 sm:p-3 col-span-1 sm:col-span-1">
+              <Award className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
+              <span className="hidden sm:inline">لوحة التحكم</span>
+              <span className="sm:hidden">لوحة</span>
             </TabsTrigger>
-            <TabsTrigger value="admin" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-gray-500 data-[state=active]:to-gray-600 data-[state=active]:text-white rounded-lg">
-              <Settings className="w-4 h-4 ml-2" />
-              الإدارة
+            <TabsTrigger value="admin" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-gray-500 data-[state=active]:to-gray-600 data-[state=active]:text-white rounded-lg text-xs sm:text-sm p-2 sm:p-3 col-span-1 sm:col-span-1">
+              <Settings className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
+              <span className="hidden sm:inline">الإدارة</span>
+              <span className="sm:hidden">إدارة</span>
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="players" className="space-y-6 animate-fade-in">
-            {/* Enhanced Search and Filters */}
-            <div className="bg-white rounded-xl p-6 shadow-lg border border-slate-200">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="relative flex-1">
+          <TabsContent value="players" className="space-y-4 sm:space-y-6 animate-fade-in">
+            {/* Mobile-optimized Search and Filters */}
+            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-lg border border-slate-200">
+              <div className="space-y-4">
+                {/* Search Bar */}
+                <div className="relative">
                   <Search className="absolute right-3 top-3 h-4 w-4 text-slate-400" />
                   <Input
-                    placeholder="البحث في اللاعبين، الأندية، أو المواقع..."
+                    placeholder="البحث في اللاعبين..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pr-10 h-12 border-2 border-slate-200 focus:border-blue-500 text-right rounded-lg"
+                    className="pr-10 h-10 sm:h-12 border-2 border-slate-200 focus:border-blue-500 text-right rounded-lg text-sm sm:text-base"
                   />
                 </div>
-                <div className="flex gap-2">
+                
+                {/* Mobile Filters Toggle */}
+                <div className="flex justify-between items-center sm:hidden">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setShowMobileFilters(!showMobileFilters)}
+                    className="flex items-center"
+                  >
+                    <Filter className="w-4 h-4 ml-2" />
+                    فلاتر
+                  </Button>
+                  <select
+                    value={selectedPosition}
+                    onChange={(e) => setSelectedPosition(e.target.value)}
+                    className="px-3 py-2 border-2 border-slate-200 rounded-lg focus:border-blue-500 bg-white text-right text-sm"
+                  >
+                    {positions.map(pos => (
+                      <option key={pos} value={pos}>
+                        {pos}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Desktop Filters */}
+                <div className="hidden sm:flex gap-2">
                   <select
                     value={selectedPosition}
                     onChange={(e) => setSelectedPosition(e.target.value)}
@@ -357,69 +403,69 @@ const Index = () => {
               </div>
             </div>
 
-            {/* Enhanced Quick Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            {/* Mobile-optimized Quick Stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-6 mb-6 sm:mb-8">
               <Card className="stat-card border-r-blue-500 hover:scale-105 transition-all duration-300">
-                <CardContent className="p-6">
+                <CardContent className="p-3 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div className="text-right">
-                      <p className="text-sm font-medium text-slate-600">إجمالي اللاعبين</p>
-                      <p className="text-3xl font-bold text-blue-600">{players.length}</p>
-                      <p className="text-xs text-slate-500 mt-1">متوفر حالياً</p>
+                      <p className="text-xs sm:text-sm font-medium text-slate-600">إجمالي اللاعبين</p>
+                      <p className="text-xl sm:text-3xl font-bold text-blue-600">{players.length}</p>
+                      <p className="text-xs text-slate-500 mt-1 hidden sm:block">متوفر حالياً</p>
                     </div>
-                    <Users className="w-10 h-10 text-blue-500" />
+                    <Users className="w-6 h-6 sm:w-10 sm:h-10 text-blue-500" />
                   </div>
                 </CardContent>
               </Card>
               
               <Card className="stat-card border-r-green-500 hover:scale-105 transition-all duration-300">
-                <CardContent className="p-6">
+                <CardContent className="p-3 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div className="text-right">
-                      <p className="text-sm font-medium text-slate-600">النجوم الصاعدة</p>
-                      <p className="text-3xl font-bold text-green-600">{players.filter(p => p.potential > 8.5).length}</p>
-                      <p className="text-xs text-slate-500 mt-1">إمكانيات عالية</p>
+                      <p className="text-xs sm:text-sm font-medium text-slate-600">النجوم الصاعدة</p>
+                      <p className="text-xl sm:text-3xl font-bold text-green-600">{players.filter(p => p.potential > 8.5).length}</p>
+                      <p className="text-xs text-slate-500 mt-1 hidden sm:block">إمكانيات عالية</p>
                     </div>
-                    <TrendingUp className="w-10 h-10 text-green-500" />
+                    <TrendingUp className="w-6 h-6 sm:w-10 sm:h-10 text-green-500" />
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="stat-card border-r-yellow-500 hover:scale-105 transition-all duration-300">
-                <CardContent className="p-6">
+                <CardContent className="p-3 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div className="text-right">
-                      <p className="text-sm font-medium text-slate-600">القيمة السوقية</p>
-                      <p className="text-3xl font-bold text-yellow-600">
+                      <p className="text-xs sm:text-sm font-medium text-slate-600">القيمة السوقية</p>
+                      <p className="text-xl sm:text-3xl font-bold text-yellow-600">
                         {adminSettings.showCurrency 
                           ? `€${(players.reduce((sum, p) => sum + p.marketValue, 0) / 1000000).toFixed(1)}م` 
                           : 'مخفية'}
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">إجمالي القيم</p>
+                      <p className="text-xs text-slate-500 mt-1 hidden sm:block">إجمالي القيم</p>
                     </div>
-                    <Target className="w-10 h-10 text-yellow-500" />
+                    <Target className="w-6 h-6 sm:w-10 sm:h-10 text-yellow-500" />
                   </div>
                 </CardContent>
               </Card>
 
               <Card className="stat-card border-r-purple-500 hover:scale-105 transition-all duration-300">
-                <CardContent className="p-6">
+                <CardContent className="p-3 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div className="text-right">
-                      <p className="text-sm font-medium text-slate-600">متوسط التقييم</p>
-                      <p className="text-3xl font-bold text-purple-600">
+                      <p className="text-xs sm:text-sm font-medium text-slate-600">متوسط التقييم</p>
+                      <p className="text-xl sm:text-3xl font-bold text-purple-600">
                         {(players.reduce((sum, p) => sum + p.rating, 0) / players.length).toFixed(1)}
                       </p>
-                      <p className="text-xs text-slate-500 mt-1">من 10 نقاط</p>
+                      <p className="text-xs text-slate-500 mt-1 hidden sm:block">من 10 نقاط</p>
                     </div>
-                    <Star className="w-10 h-10 text-purple-500" />
+                    <Star className="w-6 h-6 sm:w-10 sm:h-10 text-purple-500" />
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Player Cards with improved layout */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {/* Mobile-optimized Player Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
               {filteredPlayers.map((player, index) => (
                 <div key={player.id} className="animate-slide-up" style={{animationDelay: `${index * 0.1}s`}}>
                   <PlayerCard 
