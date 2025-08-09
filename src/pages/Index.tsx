@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -224,11 +223,13 @@ const Index = () => {
   const positions = ["الكل", "حارس مرمى", "مدافع", "وسط ميدان", "مهاجم", "جناح"];
 
   useEffect(() => {
+    console.log("Index component is mounting...");
     initializeData();
   }, []);
 
   const initializeData = async () => {
     try {
+      console.log("Initializing data...");
       await dbService.init();
       
       // Load players
@@ -243,6 +244,7 @@ const Index = () => {
       // Load settings
       const settings = await dbService.getSettings();
       setAdminSettings(settings);
+      console.log("Data initialization completed");
     } catch (error) {
       console.error('خطأ في تحميل البيانات:', error);
       setPlayers(samplePlayers);
@@ -268,6 +270,8 @@ const Index = () => {
                            (selectedPosition === "جناح" && player.position.includes("جناح"));
     return matchesSearch && matchesPosition;
   });
+
+  console.log("Rendering Index component with", players.length, "players");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50" dir="rtl">
