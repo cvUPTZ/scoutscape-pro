@@ -9,6 +9,7 @@ interface Player {
   marketValue: number;
   rating: number;
   potential: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metrics: any;
   image?: string;
   nationality: string;

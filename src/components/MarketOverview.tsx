@@ -115,7 +115,7 @@ const MarketOverview = () => {
                     borderRadius: '8px',
                     direction: 'rtl'
                   }}
-                  formatter={(value: any) => [`€${value}م`, 'القيمة السوقية']}
+                  formatter={(value: number) => [`€${value}م`, 'القيمة السوقية']}
                 />
                 <Line 
                   type="monotone" 
