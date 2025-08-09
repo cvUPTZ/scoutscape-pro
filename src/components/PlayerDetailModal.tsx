@@ -2,6 +2,7 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import VideoSegments from './VideoSegments';
 import { 
   MapPin, 
   Calendar, 
@@ -254,6 +255,12 @@ const PlayerDetailModal = ({ player, isOpen, onClose, currency, showCurrency }: 
                 </div>
               ))}
             </div>
+          </div>
+
+          {/* Video Segments */}
+          <div>
+            <h4 className="text-lg font-bold text-slate-900 mb-4 text-right">مقاطع الفيديو</h4>
+            <VideoSegments segments={player.videoSegments || []} />
           </div>
         </div>
       </DialogContent>

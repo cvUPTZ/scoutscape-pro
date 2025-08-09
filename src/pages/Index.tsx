@@ -4,10 +4,11 @@ import PlayerCard from "@/components/PlayerCard";
 import AddPlayerForm from "@/components/AddPlayerForm";
 import AdminSettings from "@/components/AdminSettings";
 import MarketOverview from "@/components/MarketOverview";
+import WatchPage from "@/components/WatchPage";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Settings, TrendingUp, Users, Search, Filter } from "lucide-react";
+import { Plus, Settings, TrendingUp, Users, Search, Filter, Video } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AdminSettings as AdminSettingsType } from "@/utils/indexedDB";
@@ -49,6 +50,7 @@ interface Player {
   yellowCards: number;
   redCards: number;
   appearances: number;
+  videoSegments?: { title: string; url: string }[];
 }
 
 const mockData: Player[] = [
@@ -81,6 +83,10 @@ const mockData: Player[] = [
     yellowCards: 2,
     redCards: 0,
     appearances: 35,
+    videoSegments: [
+      { title: "أفضل الأهداف", url: "https://example.com/salah_goals.mp4" },
+      { title: "مهارات ومراوغات", url: "https://example.com/salah_skills.mp4" },
+    ],
   },
   {
     id: 2,
@@ -111,6 +117,10 @@ const mockData: Player[] = [
     yellowCards: 5,
     redCards: 1,
     appearances: 32,
+    videoSegments: [
+      { title: "انطلاقات صاروخية", url: "https://example.com/hakimi_runs.mp4" },
+      { title: "أهداف رائعة", url: "https://example.com/hakimi_goals.mp4" },
+    ],
   },
   {
     id: 3,
@@ -141,6 +151,10 @@ const mockData: Player[] = [
     yellowCards: 3,
     redCards: 0,
     appearances: 40,
+    videoSegments: [
+      { title: "لمسات فنية", url: "https://example.com/mahrez_skills.mp4" },
+      { title: "أهداف حاسمة", url: "https://example.com/mahrez_goals.mp4" },
+    ],
   },
   {
     id: 4,
@@ -171,6 +185,10 @@ const mockData: Player[] = [
     yellowCards: 4,
     redCards: 0,
     appearances: 38,
+    videoSegments: [
+      { title: "قوة وسرعة", url: "https://example.com/mane_speed.mp4" },
+      { title: "أهداف أكروباتية", url: "https://example.com/mane_goals.mp4" },
+    ],
   },
   {
     id: 5,
@@ -201,6 +219,10 @@ const mockData: Player[] = [
     yellowCards: 1,
     redCards: 0,
     appearances: 28,
+    videoSegments: [
+      { title: "تمريرات حريرية", url: "https://example.com/ziyach_passes.mp4" },
+      { title: "أهداف من بعيد", url: "https://example.com/ziyach_goals.mp4" },
+    ],
   },
 ];
 
@@ -278,9 +300,10 @@ const Index = () => {
       {/* Main Content */}
       <div className="container mx-auto px-4 py-6 space-y-6">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white shadow-sm rounded-xl p-1">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 bg-white shadow-sm rounded-xl p-1">
             <TabsTrigger value="dashboard" className="text-sm">لوحة التحكم</TabsTrigger>
             <TabsTrigger value="players" className="text-sm">اللاعبون</TabsTrigger>
+            <TabsTrigger value="watch" className="text-sm">شاهد</TabsTrigger>
             <TabsTrigger value="add-player" onClick={() => setIsAddPlayerFormOpen(true)} className="text-sm">إضافة لاعب</TabsTrigger>
             <TabsTrigger value="market" className="text-sm">السوق</TabsTrigger>
           </TabsList>
@@ -364,6 +387,10 @@ const Index = () => {
                 </div>
               </Card>
             )}
+          </TabsContent>
+
+          <TabsContent value="watch" className="mt-6">
+            <WatchPage players={players} />
           </TabsContent>
 
           <TabsContent value="market" className="mt-6">
