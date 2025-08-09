@@ -12,6 +12,7 @@ interface Player {
   marketValue: number;
   rating: number;
   potential: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   metrics: any;
 }
 
@@ -21,7 +22,7 @@ interface PlayerStatsProps {
 
 const PlayerStats = ({ players }: PlayerStatsProps) => {
   // تحضير بيانات توزيع الأعمار
-  const ageDistribution = players.reduce((acc: any, player) => {
+  const ageDistribution = players.reduce((acc: { [key: string]: number }, player) => {
     const ageGroup = `${Math.floor(player.age / 2) * 2}-${Math.floor(player.age / 2) * 2 + 1}`;
     acc[ageGroup] = (acc[ageGroup] || 0) + 1;
     return acc;
@@ -33,7 +34,7 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
   }));
 
   // تحضير بيانات توزيع المراكز
-  const positionDistribution = players.reduce((acc: any, player) => {
+  const positionDistribution = players.reduce((acc: { [key: string]: number }, player) => {
     const mainPosition = player.position.split('/')[0];
     acc[mainPosition] = (acc[mainPosition] || 0) + 1;
     return acc;
@@ -102,7 +103,7 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
                     borderRadius: '8px',
                     direction: 'rtl'
                   }}
-                  formatter={(value: any) => [value, 'عدد اللاعبين']}
+                  formatter={(value: number) => [value, 'عدد اللاعبين']}
                 />
                 <Bar dataKey="players" fill="url(#gradient1)" radius={[4, 4, 0, 0]} />
                 <defs>
@@ -134,7 +135,7 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
                     borderRadius: '8px',
                     direction: 'rtl'
                   }}
-                  formatter={(value: any) => [value, 'عدد اللاعبين']}
+                  formatter={(value: number) => [value, 'عدد اللاعبين']}
                 />
                 <Bar dataKey="count" fill="url(#gradient2)" radius={[4, 4, 0, 0]} />
                 <defs>
@@ -167,7 +168,7 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
                   borderRadius: '8px',
                   direction: 'rtl'
                 }}
-                formatter={(value: any, name: any) => [
+                formatter={(value: number, name: string) => [
                   name === 'value' ? `€${value}ألف` : value,
                   name === 'value' ? 'القيمة السوقية' : 'التقييم'
                 ]}
