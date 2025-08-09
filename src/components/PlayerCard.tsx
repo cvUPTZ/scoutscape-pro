@@ -1,4 +1,4 @@
-
+import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import {
   Eye,
   User
 } from "lucide-react";
+import PlayerDetailModal from "./PlayerDetailModal";
 
 interface PlayerMetrics {
   pace?: number;
@@ -57,6 +58,13 @@ interface PlayerCardProps {
 }
 
 const PlayerCard = ({ player, currency, showCurrency, onViewDetails }: PlayerCardProps) => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleViewDetails = () => {
+    setIsModalOpen(true);
+    onViewDetails?.(player);
+  };
+
   const formatCurrency = (value: number) => {
     if (!showCurrency) return 'مخفية';
     
@@ -110,99 +118,109 @@ const PlayerCard = ({ player, currency, showCurrency, onViewDetails }: PlayerCar
   const topMetric = getTopMetric(player.metrics);
 
   return (
-    <Card className="bg-white border border-slate-200 hover:border-blue-300 hover:shadow-xl transition-all duration-300 overflow-hidden group" dir="rtl">
-      <CardHeader className="pb-4">
-        <div className="flex items-start gap-4">
-          <div className="flex-1 text-right">
-            <div className="flex items-center justify-between mb-2">
-              <Badge className={`${getPositionColor(player.position)} text-xs font-medium`}>
-                {player.position}
-              </Badge>
-              <h3 className="text-lg font-bold text-slate-900">{player.name}</h3>
+    <>
+      <Card className="bg-card border border-border hover:border-primary/20 hover:shadow-xl transition-all duration-300 overflow-hidden group font-arabic" dir="rtl">
+        <CardHeader className="pb-4">
+          <div className="flex items-start gap-4">
+            <div className="flex-1 text-right">
+              <div className="flex items-center justify-between mb-2">
+                <Badge className={`${getPositionColor(player.position)} text-xs font-medium`}>
+                  {player.position}
+                </Badge>
+                <h3 className="text-lg font-bold text-foreground">{player.name}</h3>
+              </div>
+              
+              <div className="space-y-1 text-sm text-muted-foreground">
+                <div className="flex items-center justify-end gap-1">
+                  <span>{player.age} سنة</span>
+                  <Calendar className="w-4 h-4" />
+                </div>
+                <div className="flex items-center justify-end gap-1">
+                  <span>{player.location}</span>
+                  <MapPin className="w-4 h-4" />
+                </div>
+              </div>
             </div>
             
-            <div className="space-y-1 text-sm text-slate-600">
-              <div className="flex items-center justify-end gap-1">
-                <span>{player.age} سنة</span>
-                <Calendar className="w-4 h-4" />
-              </div>
-              <div className="flex items-center justify-end gap-1">
-                <span>{player.location}</span>
-                <MapPin className="w-4 h-4" />
-              </div>
+            <div className="flex-shrink-0">
+              {player.image ? (
+                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-border">
+                  <img 
+                    src={player.image} 
+                    alt={player.name}
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="w-16 h-16 rounded-full bg-muted border-2 border-border flex items-center justify-center">
+                  <User className="w-6 h-6 text-muted-foreground" />
+                </div>
+              )}
             </div>
           </div>
-          
-          <div className="flex-shrink-0">
-            {player.image ? (
-              <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-slate-200">
-                <img 
-                  src={player.image} 
-                  alt={player.name}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-            ) : (
-              <div className="w-16 h-16 rounded-full bg-slate-100 border-2 border-slate-200 flex items-center justify-center">
-                <User className="w-6 h-6 text-slate-400" />
-              </div>
-            )}
-          </div>
-        </div>
-      </CardHeader>
+        </CardHeader>
 
-      <CardContent className="space-y-4">
-        {/* النادي والتقييم */}
-        <div className="flex items-center justify-between">
-          <div className={`px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-1 ${getRatingColor(player.rating)}`}>
-            <span>{player.rating.toFixed(1)}</span>
-            <Star className="w-4 h-4 fill-current" />
+        <CardContent className="space-y-4">
+          {/* النادي والتقييم */}
+          <div className="flex items-center justify-between">
+            <div className={`px-3 py-2 rounded-lg text-sm font-bold flex items-center gap-1 ${getRatingColor(player.rating)}`}>
+              <span>{player.rating.toFixed(1)}</span>
+              <Star className="w-4 h-4 fill-current" />
+            </div>
+            <p className="text-sm font-medium text-foreground">{player.club}</p>
           </div>
-          <p className="text-sm font-medium text-slate-700">{player.club}</p>
-        </div>
 
-        {/* القيمة السوقية والمهارة الأفضل */}
-        <div className="grid grid-cols-2 gap-3">
-          <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-            <p className="text-xs text-blue-700 font-medium mb-1">القيمة السوقية</p>
-            <p className="text-sm font-bold text-blue-900">
-              {formatCurrency(player.marketValue)}
-            </p>
+          {/* القيمة السوقية والمهارة الأفضل */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="text-center p-3 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
+              <p className="text-xs text-blue-700 font-medium mb-1">القيمة السوقية</p>
+              <p className="text-sm font-bold text-blue-900">
+                {formatCurrency(player.marketValue)}
+              </p>
+            </div>
+            
+            <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
+              <p className="text-xs text-green-700 font-medium mb-1">أفضل مهارة</p>
+              <p className="text-xs text-green-900 font-medium">{topMetric?.name}</p>
+              <p className="text-sm font-bold text-green-900">{topMetric?.value}</p>
+            </div>
           </div>
-          
-          <div className="text-center p-3 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
-            <p className="text-xs text-green-700 font-medium mb-1">أفضل مهارة</p>
-            <p className="text-xs text-green-900 font-medium">{topMetric?.name}</p>
-            <p className="text-sm font-bold text-green-900">{topMetric?.value}</p>
-          </div>
-        </div>
 
-        {/* الإحصائيات الأساسية */}
-        <div className="flex justify-center gap-6 py-2 text-center">
-          <div>
-            <p className="text-lg font-bold text-green-600">{player.goals}</p>
-            <p className="text-xs text-slate-600">أهداف</p>
+          {/* الإحصائيات الأساسية */}
+          <div className="flex justify-center gap-6 py-2 text-center">
+            <div>
+              <p className="text-lg font-bold text-green-600">{player.goals}</p>
+              <p className="text-xs text-muted-foreground">أهداف</p>
+            </div>
+            <div>
+              <p className="text-lg font-bold text-blue-600">{player.assists}</p>
+              <p className="text-xs text-muted-foreground">تمريرات حاسمة</p>
+            </div>
+            <div>
+              <p className="text-lg font-bold text-muted-foreground">{player.appearances}</p>
+              <p className="text-xs text-muted-foreground">مباراة</p>
+            </div>
           </div>
-          <div>
-            <p className="text-lg font-bold text-blue-600">{player.assists}</p>
-            <p className="text-xs text-slate-600">تمريرات حاسمة</p>
-          </div>
-          <div>
-            <p className="text-lg font-bold text-slate-600">{player.appearances}</p>
-            <p className="text-xs text-slate-600">مباراة</p>
-          </div>
-        </div>
 
-        {/* زر عرض التفاصيل */}
-        <Button 
-          className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium"
-          onClick={() => onViewDetails?.(player)}
-        >
-          <Eye className="w-4 h-4 ml-2" />
-          عرض التفاصيل الكاملة
-        </Button>
-      </CardContent>
-    </Card>
+          {/* زر عرض التفاصيل */}
+          <Button 
+            className="w-full bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-medium"
+            onClick={handleViewDetails}
+          >
+            <Eye className="w-4 h-4 ml-2" />
+            عرض التفاصيل الكاملة
+          </Button>
+        </CardContent>
+      </Card>
+
+      <PlayerDetailModal
+        player={player}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        currency={currency}
+        showCurrency={showCurrency}
+      />
+    </>
   );
 };
 
