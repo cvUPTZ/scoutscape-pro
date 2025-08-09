@@ -7,17 +7,14 @@ import {
   MapPin, 
   Star, 
   Eye, 
-  Clock, 
   CheckCircle, 
   AlertCircle,
-  TrendingUp,
   Users,
   Target,
   BookOpen
 } from "lucide-react";
 
 const ScoutDashboard = () => {
-  // State to track which matches are being watched
   const [watchingMatches, setWatchingMatches] = useState<number[]>([]);
 
   const upcomingMatches = [
@@ -88,28 +85,21 @@ const ScoutDashboard = () => {
     { title: "التوصيات", value: 12, icon: Target, color: "text-yellow-600" }
   ];
 
-  // Function to handle watch button click
   const handleWatchMatch = (matchId: number) => {
     setWatchingMatches(prev => {
       if (prev.includes(matchId)) {
-        // Already watching, remove from watch list
         return prev.filter(id => id !== matchId);
       } else {
-        // Not watching, add to watch list
         return [...prev, matchId];
       }
     });
     
-    // You can add more functionality here, such as:
-    // - Sending a notification
-    // - Saving to database
-    // - Adding to calendar
     console.log(`مراقبة المباراة رقم ${matchId}`);
   };
 
   return (
     <div className="space-y-6">
-      {/* إحصائيات الاستكشاف */}
+      {/* Statistics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {stats.map((stat, index) => (
           <Card key={index} className="card-scout hover:scale-105 transition-transform">
@@ -127,7 +117,7 @@ const ScoutDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* المباريات القادمة */}
+        {/* Upcoming Matches */}
         <Card className="card-scout">
           <CardHeader>
             <CardTitle className="text-gradient-primary flex items-center justify-end">
@@ -175,7 +165,6 @@ const ScoutDashboard = () => {
                     </div>
                   </div>
                   
-                  {/* Show additional info when watching */}
                   {isWatching && (
                     <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded text-center">
                       <p className="text-sm text-green-700 font-medium">
@@ -189,7 +178,7 @@ const ScoutDashboard = () => {
           </CardContent>
         </Card>
 
-        {/* التقارير الأخيرة */}
+        {/* Recent Reports */}
         <Card className="card-scout">
           <CardHeader>
             <CardTitle className="text-gradient-primary flex items-center justify-end">
@@ -225,7 +214,7 @@ const ScoutDashboard = () => {
         </Card>
       </div>
 
-      {/* قائمة المراقبة */}
+      {/* Watch List */}
       <Card className="card-scout">
         <CardHeader>
           <CardTitle className="text-gradient-primary flex items-center justify-end">
@@ -257,7 +246,7 @@ const ScoutDashboard = () => {
             ))}
           </div>
         </CardContent>
-      </div>
+      </Card>
     </div>
   );
 };
