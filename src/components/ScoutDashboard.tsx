@@ -1,7 +1,7 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { useState } from "react";
 import { 
   Calendar, 
   MapPin, 
@@ -17,6 +17,9 @@ import {
 } from "lucide-react";
 
 const ScoutDashboard = () => {
+  // State to track which matches are being watched
+  const [watchingMatches, setWatchingMatches] = useState<number[]>([]);
+
   const upcomingMatches = [
     {
       id: 1,
@@ -85,6 +88,25 @@ const ScoutDashboard = () => {
     { title: "التوصيات", value: 12, icon: Target, color: "text-yellow-600" }
   ];
 
+  // Function to handle watch button click
+  const handleWatchMatch = (matchId: number) => {
+    setWatchingMatches(prev => {
+      if (prev.includes(matchId)) {
+        // Already watching, remove from watch list
+        return prev.filter(id => id !== matchId);
+      } else {
+        // Not watching, add to watch list
+        return [...prev, matchId];
+      }
+    });
+    
+    // You can add more functionality here, such as:
+    // - Sending a notification
+    // - Saving to database
+    // - Adding to calendar
+    console.log(`مراقبة المباراة رقم ${matchId}`);
+  };
+
   return (
     <div className="space-y-6">
       {/* إحصائيات الاستكشاف */}
@@ -114,39 +136,56 @@ const ScoutDashboard = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {upcomingMatches.map((match) => (
-              <div key={match.id} className="p-4 bg-gradient-to-l from-slate-50 to-slate-100 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
-                <div className="flex justify-between items-start mb-3">
-                  <Button size="sm" className="btn-primary">
-                    <Eye className="w-4 h-4 ml-1" />
-                    مراقبة
-                  </Button>
-                  <div className="text-right">
-                    <h4 className="font-semibold text-slate-800">
-                      {match.homeTeam} ضد {match.awayTeam}
-                    </h4>
-                    <div className="flex items-center text-sm text-slate-600 mt-1 justify-end">
-                      <span>{new Date(match.date).toLocaleDateString('ar')} في {match.time}</span>
-                      <Calendar className="w-4 h-4 ml-1" />
-                    </div>
-                    <div className="flex items-center text-sm text-slate-600 justify-end">
-                      <span>{match.venue}</span>
-                      <MapPin className="w-4 h-4 ml-1" />
+            {upcomingMatches.map((match) => {
+              const isWatching = watchingMatches.includes(match.id);
+              
+              return (
+                <div key={match.id} className="p-4 bg-gradient-to-l from-slate-50 to-slate-100 rounded-lg border border-slate-200 hover:shadow-md transition-shadow">
+                  <div className="flex justify-between items-start mb-3">
+                    <Button 
+                      size="sm" 
+                      className={`${isWatching ? 'bg-green-600 hover:bg-green-700' : 'btn-primary'} transition-colors`}
+                      onClick={() => handleWatchMatch(match.id)}
+                    >
+                      <Eye className="w-4 h-4 ml-1" />
+                      {isWatching ? 'قيد المراقبة' : 'مراقبة'}
+                    </Button>
+                    <div className="text-right">
+                      <h4 className="font-semibold text-slate-800">
+                        {match.homeTeam} ضد {match.awayTeam}
+                      </h4>
+                      <div className="flex items-center text-sm text-slate-600 mt-1 justify-end">
+                        <span>{new Date(match.date).toLocaleDateString('ar')} في {match.time}</span>
+                        <Calendar className="w-4 h-4 ml-1" />
+                      </div>
+                      <div className="flex items-center text-sm text-slate-600 justify-end">
+                        <span>{match.venue}</span>
+                        <MapPin className="w-4 h-4 ml-1" />
+                      </div>
                     </div>
                   </div>
-                </div>
-                <div>
-                  <p className="text-xs font-semibold text-slate-600 mb-2 text-right">لاعبون للمراقبة:</p>
-                  <div className="flex flex-wrap gap-2 justify-end">
-                    {match.playersToWatch.map((player) => (
-                      <Badge key={player} variant="secondary" className="text-xs">
-                        {player}
-                      </Badge>
-                    ))}
+                  <div>
+                    <p className="text-xs font-semibold text-slate-600 mb-2 text-right">لاعبون للمراقبة:</p>
+                    <div className="flex flex-wrap gap-2 justify-end">
+                      {match.playersToWatch.map((player) => (
+                        <Badge key={player} variant="secondary" className="text-xs">
+                          {player}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
+                  
+                  {/* Show additional info when watching */}
+                  {isWatching && (
+                    <div className="mt-3 p-2 bg-green-50 border border-green-200 rounded text-center">
+                      <p className="text-sm text-green-700 font-medium">
+                        ✓ تمت إضافة المباراة إلى قائمة المراقبة
+                      </p>
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </CardContent>
         </Card>
 
@@ -218,7 +257,7 @@ const ScoutDashboard = () => {
             ))}
           </div>
         </CardContent>
-      </Card>
+      </div>
     </div>
   );
 };
