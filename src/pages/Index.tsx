@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Settings, TrendingUp, Users, Search, Filter } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { AdminSettings as AdminSettingsType } from "@/utils/indexedDB";
 
 interface PlayerMetrics {
   pace?: number;
@@ -212,6 +213,7 @@ const Index = () => {
   const [ageFilter, setAgeFilter] = useState("all");
   const [currency, setCurrency] = useState("USD");
   const [showCurrency, setShowCurrency] = useState(true);
+  const [isAddPlayerFormOpen, setIsAddPlayerFormOpen] = useState(false);
 
   useEffect(() => {
     console.log("Active Tab:", activeTab);
@@ -219,6 +221,12 @@ const Index = () => {
 
   const handleAddPlayer = (newPlayer: Player) => {
     setPlayers([...players, { ...newPlayer, id: Date.now() }]);
+    setIsAddPlayerFormOpen(false);
+  };
+
+  const handleSettingsChange = (newSettings: AdminSettingsType) => {
+    setCurrency(newSettings.currency);
+    setShowCurrency(newSettings.showCurrency);
   };
 
   const filteredPlayers = players.filter((player) => {
@@ -273,7 +281,7 @@ const Index = () => {
           <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 bg-white shadow-sm rounded-xl p-1">
             <TabsTrigger value="dashboard" className="text-sm">لوحة التحكم</TabsTrigger>
             <TabsTrigger value="players" className="text-sm">اللاعبون</TabsTrigger>
-            <TabsTrigger value="add-player" className="text-sm">إضافة لاعب</TabsTrigger>
+            <TabsTrigger value="add-player" onClick={() => setIsAddPlayerFormOpen(true)} className="text-sm">إضافة لاعب</TabsTrigger>
             <TabsTrigger value="market" className="text-sm">السوق</TabsTrigger>
           </TabsList>
 
@@ -358,24 +366,21 @@ const Index = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="add-player" className="mt-6">
-            <AddPlayerForm onAddPlayer={handleAddPlayer} />
-          </TabsContent>
-
           <TabsContent value="market" className="mt-6">
             <MarketOverview players={players} />
           </TabsContent>
 
           <TabsContent value="settings" className="mt-6">
-            <AdminSettings
-              currency={currency}
-              onCurrencyChange={setCurrency}
-              showCurrency={showCurrency}
-              onShowCurrencyChange={setShowCurrency}
-            />
+            <AdminSettings onSettingsChange={handleSettingsChange} />
           </TabsContent>
         </Tabs>
       </div>
+      {isAddPlayerFormOpen && (
+        <AddPlayerForm
+          onPlayerAdded={handleAddPlayer}
+          onClose={() => setIsAddPlayerFormOpen(false)}
+        />
+      )}
     </div>
   );
 };
