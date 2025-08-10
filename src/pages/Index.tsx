@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import AddPlayerForm from '@/components/AddPlayerForm';
+import PlayerForm from '@/components/PlayerForm';
 import PlayerCard from '@/components/PlayerCard';
 import PlayerDetailModal from '@/components/PlayerDetailModal';
 import AdminSettings from '@/components/AdminSettings';
@@ -27,162 +27,17 @@ import {
   Target,
   Video
 } from 'lucide-react';
-import { getPlayers, savePlayers } from '@/utils/indexedDB';
-
-interface PlayerMetrics {
-  pace?: number;
-  shooting?: number;
-  passing?: number;
-  dribbling?: number;
-  defense?: number;
-  physical?: number;
-  diving?: number;
-  handling?: number;
-  kicking?: number;
-  reflexes?: number;
-  positioning?: number;
-  speed?: number;
-}
-
-interface VideoSegment {
-  title: string;
-  url: string;
-}
-
-interface Player {
-  id: number;
-  name: string;
-  age: number;
-  position: string;
-  club: string;
-  location: string;
-  marketValue: number;
-  rating: number;
-  potential: number;
-  metrics: PlayerMetrics;
-  image?: string;
-  nationality: string;
-  height: string;
-  weight: string;
-  preferredFoot: string;
-  contractUntil: string;
-  goals: number;
-  assists: number;
-  yellowCards: number;
-  redCards: number;
-  appearances: number;
-  videoSegments?: VideoSegment[];
-}
-
-const initialPlayers: Player[] = [
-  {
-    id: 1,
-    name: "محمد صلاح",
-    age: 30,
-    position: "جناح أيمن",
-    club: "ليفربول",
-    location: "إنجلترا",
-    marketValue: 90000000,
-    rating: 89,
-    potential: 90,
-    metrics: {
-      pace: 92,
-      shooting: 88,
-      passing: 81,
-      dribbling: 90,
-      defense: 45,
-      physical: 75,
-    },
-    image: "https://tmssl.akamaized.net/images/foto/galerie/mohamed-salah-fc-liverpool-1666174749-92364.jpg?lm=1666174761",
-    nationality: "مصر",
-    height: "1.75 م",
-    weight: "71 كغ",
-    preferredFoot: "يسرى",
-    contractUntil: "2025",
-    goals: 25,
-    assists: 12,
-    yellowCards: 1,
-    redCards: 0,
-    appearances: 40,
-    videoSegments: [
-      { title: "هدف رائع ضد مانشستر يونايتد", url: "https://www.youtube.com/watch?v=your_video_id_1" },
-      { title: "مهارات فائقة في منطقة الجزاء", url: "https://www.youtube.com/watch?v=your_video_id_2" },
-    ],
-  },
-  {
-    id: 2,
-    name: "رياض محرز",
-    age: 32,
-    position: "جناح أيمن",
-    club: "مانشستر سيتي",
-    location: "إنجلترا",
-    marketValue: 40000000,
-    rating: 85,
-    potential: 85,
-    metrics: {
-      pace: 82,
-      shooting: 84,
-      passing: 86,
-      dribbling: 91,
-      defense: 48,
-      physical: 70,
-    },
-    image: "https://tmssl.akamaized.net/images/foto/normal/riyad-mahrez-manchester-city-1673444024-97344.jpg?lm=1673444036",
-    nationality: "الجزائر",
-    height: "1.79 م",
-    weight: "68 كغ",
-    preferredFoot: "يسرى",
-    contractUntil: "2025",
-    goals: 18,
-    assists: 9,
-    yellowCards: 2,
-    redCards: 0,
-    appearances: 35,
-    videoSegments: [
-      { title: "هدف رائع من ركلة حرة", url: "https://www.youtube.com/watch?v=your_video_id_3" },
-      { title: "تمريرة حاسمة رائعة", url: "https://www.youtube.com/watch?v=your_video_id_4" },
-    ],
-  },
-  {
-    id: 3,
-    name: "أشرف حكيمي",
-    age: 24,
-    position: "ظهير أيمن",
-    club: "باريس سان جيرمان",
-    location: "فرنسا",
-    marketValue: 70000000,
-    rating: 84,
-    potential: 88,
-    metrics: {
-      pace: 95,
-      shooting: 68,
-      passing: 78,
-      dribbling: 82,
-      defense: 80,
-      physical: 85,
-    },
-    image: "https://tmssl.akamaized.net/images/foto/normal/achraf-hakimi-paris-saint-germain-2023-1677598453-101866.jpg?lm=1677598464",
-    nationality: "المغرب",
-    height: "1.81 م",
-    weight: "73 كغ",
-    preferredFoot: "يمنى",
-    contractUntil: "2026",
-    goals: 7,
-    assists: 11,
-    yellowCards: 3,
-    redCards: 0,
-    appearances: 42,
-    videoSegments: [
-      { title: "هدف بتسديدة قوية", url: "https://www.youtube.com/watch?v=your_video_id_5" },
-      { title: "تدخل دفاعي ممتاز", url: "https://www.youtube.com/watch?v=your_video_id_6" },
-    ],
-  },
-];
+import { dbService } from '@/utils/dbService';
+import { Player } from '@/types';
+import { usePlayers, useDeletePlayer } from '@/hooks/usePlayers';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Index = () => {
-  const [players, setPlayers] = useState<Player[]>(initialPlayers);
+  const { data: players = [], isLoading, error } = usePlayers();
+  const deletePlayerMutation = useDeletePlayer();
   const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false);
   const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
+  const [editPlayer, setEditPlayer] = useState<Player | null>(null);
   const [isPlayerDetailModalOpen, setIsPlayerDetailModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [searchTerm, setSearchTerm] = useState("");
@@ -191,27 +46,12 @@ const Index = () => {
   const [sortOrder, setSortOrder] = useState("desc");
   const [showCurrency, setShowCurrency] = useState(true);
   const [currency, setCurrency] = useState("EUR");
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const loadPlayers = async () => {
-      const storedPlayers = await getPlayers();
-      if (storedPlayers && storedPlayers.length > 0) {
-        setPlayers(storedPlayers);
-      }
-    };
-
-    loadPlayers();
-  }, []);
-
-  useEffect(() => {
-    const save = async () => {
-      await savePlayers(players);
-    }
-    save()
-  }, [players]);
-
-  const handleAddPlayer = (newPlayer: Player) => {
-    setPlayers([...players, newPlayer]);
+  const handlePlayerSaved = () => {
+    queryClient.invalidateQueries({ queryKey: ['players'] });
+    setIsAddPlayerModalOpen(false);
+    setEditPlayer(null);
   };
 
   const handlePlayerClick = (player: Player) => {
@@ -223,14 +63,14 @@ const Index = () => {
     setIsPlayerDetailModalOpen(false);
   };
 
-  const filteredPlayers = players.filter((player) => {
+  const filteredPlayers = useMemo(() => players.filter((player) => {
     const searchRegex = new RegExp(searchTerm, "i");
     const positionMatch =
       filterPosition === "الكل" || player.position === filterPosition;
-    return searchRegex.test(player.name) && positionMatch;
-  });
+    return (searchRegex.test(player.name) || searchRegex.test(player.club)) && positionMatch;
+  }), [players, searchTerm, filterPosition]);
 
-  const sortedPlayers = [...filteredPlayers].sort((a, b) => {
+  const sortedPlayers = useMemo(() => [...filteredPlayers].sort((a, b) => {
     let comparison = 0;
     switch (sortOption) {
       case "name":
@@ -242,16 +82,16 @@ const Index = () => {
       case "rating":
         comparison = a.rating - b.rating;
         break;
-      case "marketValue":
-        comparison = a.marketValue - b.marketValue;
+      case "market_value":
+        comparison = a.market_value - b.market_value;
         break;
       default:
         comparison = a.rating - b.rating;
     }
     return sortOrder === "asc" ? comparison : -comparison;
-  });
+  }), [filteredPlayers, sortOption, sortOrder]);
 
-  const playerPositions = ["الكل", ...new Set(players.map((player) => player.position))];
+  const playerPositions = useMemo(() => ["الكل", ...new Set(players.map((player) => player.position))], [players]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -352,7 +192,7 @@ const Index = () => {
                         <SelectItem value="name">الاسم</SelectItem>
                         <SelectItem value="age">العمر</SelectItem>
                         <SelectItem value="rating">التقييم</SelectItem>
-                        <SelectItem value="marketValue">القيمة السوقية</SelectItem>
+                        <SelectItem value="market_value">القيمة السوقية</SelectItem>
                       </SelectContent>
                     </Select>
                     <div className="flex items-center mt-2">
@@ -363,9 +203,19 @@ const Index = () => {
                     </div>
                   </div>
                 </div>
+                {isLoading && <p>جارٍ تحميل اللاعبين...</p>}
+                {error && <p className="text-red-600">خطأ في جلب اللاعبين: {error.message}</p>}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {sortedPlayers.map((player) => (
-                    <PlayerCard key={player.id} player={player} onClick={() => handlePlayerClick(player)} />
+                    <PlayerCard
+                      key={player.id}
+                      player={player}
+                      currency={currency}
+                      showCurrency={showCurrency}
+                      onViewDetails={handlePlayerClick}
+                      onEdit={(p) => setEditPlayer(p)}
+                      onDelete={(id) => deletePlayerMutation.mutate(id)}
+                    />
                   ))}
                 </div>
               </CardContent>
@@ -385,15 +235,30 @@ const Index = () => {
           </TabsContent>
         </Tabs>
 
-        <AddPlayerForm isOpen={isAddPlayerModalOpen} onClose={() => setIsAddPlayerModalOpen(false)} onAddPlayer={handleAddPlayer} />
+        {(isAddPlayerModalOpen || editPlayer) && (
+          <PlayerDetailModal
+            player={editPlayer}
+            isOpen={isAddPlayerModalOpen || !!editPlayer}
+            onClose={() => {
+              setIsAddPlayerModalOpen(false);
+              setEditPlayer(null);
+            }}
+            onPlayerUpdated={handlePlayerSaved}
+            currency={currency}
+            showCurrency={showCurrency}
+            addMode={isAddPlayerModalOpen}
+          />
+        )}
 
-        <PlayerDetailModal
-          player={selectedPlayer}
-          isOpen={isPlayerDetailModalOpen}
-          onClose={handleClosePlayerDetailModal}
-          currency={currency}
-          showCurrency={showCurrency}
-        />
+        {selectedPlayer && !editPlayer && (
+          <PlayerDetailModal
+            player={selectedPlayer}
+            isOpen={isPlayerDetailModalOpen}
+            onClose={handleClosePlayerDetailModal}
+            currency={currency}
+            showCurrency={showCurrency}
+          />
+        )}
       </main>
     </div>
   );

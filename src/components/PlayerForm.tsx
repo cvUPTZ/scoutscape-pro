@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,56 +6,61 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { X, Plus, Upload } from "lucide-react";
-import { dbService, Player } from "@/utils/indexedDB";
+import { Player } from "@/types";
+import { useAddPlayer, useUpdatePlayer } from "@/hooks/usePlayers";
 
-interface AddPlayerFormProps {
+interface PlayerFormProps {
   onClose: () => void;
-  onPlayerAdded: (player: Player) => void;
+  onPlayerSaved: (player: any) => void;
+  initialData?: Player; // for edit mode
 }
 
-const AddPlayerForm = ({ onClose, onPlayerAdded }: AddPlayerFormProps) => {
+const PlayerForm = ({ onClose, onPlayerSaved, initialData }: PlayerFormProps) => {
+  const isEdit = Boolean(initialData);
+  const addPlayerMutation = useAddPlayer();
+  const updatePlayerMutation = useUpdatePlayer();
   const [isLoading, setIsLoading] = useState(false);
-  const [imagePreview, setImagePreview] = useState<string>("");
-  
+  const [imagePreview, setImagePreview] = useState<string>(initialData?.image || "");
+
   const [formData, setFormData] = useState({
-    name: "",
-    age: "",
-    position: "",
-    club: "",
-    location: "",
-    marketValue: "",
-    rating: "",
-    potential: "",
-    nationality: "",
-    height: "",
-    weight: "",
-    preferredFoot: "",
-    contractUntil: "",
-    goals: "",
-    assists: "",
-    yellowCards: "",
-    redCards: "",
-    appearances: "",
-    image: "",
+    name: initialData?.name || "",
+    age: initialData?.age.toString() || "",
+    position: initialData?.position || "",
+    club: initialData?.club || "",
+    location: initialData?.location || "",
+    market_value: initialData?.market_value.toString() || "",
+    rating: initialData?.rating.toString() || "",
+    potential: initialData?.potential.toString() || "",
+    nationality: initialData?.nationality || "",
+    height: initialData?.height || "",
+    weight: initialData?.weight || "",
+    preferred_foot: initialData?.preferred_foot || "",
+    contract_until: initialData?.contract_until || "",
+    goals: initialData?.goals.toString() || "",
+    assists: initialData?.assists.toString() || "",
+    yellow_cards: initialData?.yellow_cards.toString() || "",
+    red_cards: initialData?.red_cards.toString() || "",
+    appearances: initialData?.appearances.toString() || "",
+    image: initialData?.image || "",
     // Player metrics
-    pace: "",
-    shooting: "",
-    passing: "",
-    dribbling: "",
-    defense: "",
-    physical: "",
-    diving: "",
-    handling: "",
-    kicking: "",
-    reflexes: "",
-    positioning: "",
-    speed: ""
+    pace: initialData?.metrics?.pace?.toString() || "",
+    shooting: initialData?.metrics?.shooting?.toString() || "",
+    passing: initialData?.metrics?.passing?.toString() || "",
+    dribbling: initialData?.metrics?.dribbling?.toString() || "",
+    defense: initialData?.metrics?.defense?.toString() || "",
+    physical: initialData?.metrics?.physical?.toString() || "",
+    diving: initialData?.metrics?.diving?.toString() || "",
+    handling: initialData?.metrics?.handling?.toString() || "",
+    kicking: initialData?.metrics?.kicking?.toString() || "",
+    reflexes: initialData?.metrics?.reflexes?.toString() || "",
+    positioning: initialData?.metrics?.positioning?.toString() || "",
+    speed: initialData?.metrics?.speed?.toString() || ""
   });
 
   const positions = [
     "حارس مرمى",
     "مدافع أيمن",
-    "مدافع أيسر", 
+    "مدافع أيسر",
     "قلب دفاع",
     "وسط ميدان دفاعي",
     "وسط ميدان",
@@ -67,9 +71,11 @@ const AddPlayerForm = ({ onClose, onPlayerAdded }: AddPlayerFormProps) => {
     "رأس حربة"
   ];
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // In a real app, you'd upload to a service like Supabase Storage
+      // and get a URL back. For now, we'll use a placeholder.
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
@@ -84,61 +90,62 @@ const AddPlayerForm = ({ onClose, onPlayerAdded }: AddPlayerFormProps) => {
     e.preventDefault();
     setIsLoading(true);
 
-    try {
-      // Get all players to determine next ID
-      const allPlayers = await dbService.getPlayers();
-      const nextId = Math.max(...allPlayers.map(p => p.id), 0) + 1;
+    const isGoalkeeper = formData.position.includes("حارس");
 
-      const isGoalkeeper = formData.position.includes("حارس");
-      
-      const newPlayer: Player = {
-        id: nextId,
-        name: formData.name,
-        age: parseInt(formData.age),
-        position: formData.position,
-        club: formData.club,
-        location: formData.location,
-        marketValue: parseInt(formData.marketValue) || 0,
-        rating: parseFloat(formData.rating) || 0,
-        potential: parseFloat(formData.potential) || 0,
-        nationality: formData.nationality,
-        height: formData.height,
-        weight: formData.weight,
-        preferredFoot: formData.preferredFoot,
-        contractUntil: formData.contractUntil,
-        goals: parseInt(formData.goals) || 0,
-        assists: parseInt(formData.assists) || 0,
-        yellowCards: parseInt(formData.yellowCards) || 0,
-        redCards: parseInt(formData.redCards) || 0,
-        appearances: parseInt(formData.appearances) || 0,
-        image: formData.image || undefined,
-        metrics: isGoalkeeper ? {
-          diving: parseInt(formData.diving) || 0,
-          handling: parseInt(formData.handling) || 0,
-          kicking: parseInt(formData.kicking) || 0,
-          reflexes: parseInt(formData.reflexes) || 0,
-          positioning: parseInt(formData.positioning) || 0,
-          speed: parseInt(formData.speed) || 0
-        } : {
-          pace: parseInt(formData.pace) || 0,
-          shooting: parseInt(formData.shooting) || 0,
-          passing: parseInt(formData.passing) || 0,
-          dribbling: parseInt(formData.dribbling) || 0,
-          defense: parseInt(formData.defense) || 0,
-          physical: parseInt(formData.physical) || 0
-        }
-      };
+    const playerToSave: Partial<Player> = {
+      name: formData.name,
+      age: parseInt(formData.age),
+      position: formData.position,
+      club: formData.club,
+      location: formData.location,
+      market_value: parseInt(formData.market_value) || 0,
+      rating: parseFloat(formData.rating) || 0,
+      potential: parseFloat(formData.potential) || 0,
+      nationality: formData.nationality,
+      height: formData.height,
+      weight: formData.weight,
+      preferred_foot: formData.preferred_foot,
+      contract_until: formData.contract_until,
+      goals: parseInt(formData.goals) || 0,
+      assists: parseInt(formData.assists) || 0,
+      yellow_cards: parseInt(formData.yellow_cards) || 0,
+      red_cards: parseInt(formData.red_cards) || 0,
+      appearances: parseInt(formData.appearances) || 0,
+      image: formData.image || undefined,
+      metrics: isGoalkeeper ? {
+        diving: parseInt(formData.diving) || 0,
+        handling: parseInt(formData.handling) || 0,
+        kicking: parseInt(formData.kicking) || 0,
+        reflexes: parseInt(formData.reflexes) || 0,
+        positioning: parseInt(formData.positioning) || 0,
+        speed: parseInt(formData.speed) || 0
+      } : {
+        pace: parseInt(formData.pace) || 0,
+        shooting: parseInt(formData.shooting) || 0,
+        passing: parseInt(formData.passing) || 0,
+        dribbling: parseInt(formData.dribbling) || 0,
+        defense: parseInt(formData.defense) || 0,
+        physical: parseInt(formData.physical) || 0
+      }
+    };
 
-      // Add to existing players and save
-      const updatedPlayers = [...allPlayers, newPlayer];
-      await dbService.savePlayers(updatedPlayers);
-      
-      onPlayerAdded(newPlayer);
-      onClose();
-    } catch (error) {
-      console.error('خطأ في إضافة اللاعب:', error);
-    } finally {
-      setIsLoading(false);
+    const mutationOptions = {
+      onSuccess: (data: any) => {
+        onPlayerSaved(data);
+        onClose();
+      },
+      onError: (error: any) => {
+        console.error("Error saving player:", error);
+      },
+      onSettled: () => {
+        setIsLoading(false);
+      },
+    };
+
+    if (isEdit && initialData) {
+      updatePlayerMutation.mutate({ ...initialData, ...playerToSave }, mutationOptions);
+    } else {
+      addPlayerMutation.mutate(playerToSave, mutationOptions);
     }
   };
 
@@ -148,7 +155,7 @@ const AddPlayerForm = ({ onClose, onPlayerAdded }: AddPlayerFormProps) => {
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto" dir="rtl">
       <Card className="w-full max-w-4xl max-h-[90vh] overflow-y-auto">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-gradient-primary">إضافة لاعب جديد</CardTitle>
+          <CardTitle className="text-gradient-primary">{isEdit ? 'تحديث اللاعب' : 'إضافة لاعب جديد'}</CardTitle>
           <Button variant="ghost" onClick={onClose}>
             <X className="w-4 h-4" />
           </Button>
@@ -271,7 +278,7 @@ const AddPlayerForm = ({ onClose, onPlayerAdded }: AddPlayerFormProps) => {
               </div>
               <div className="space-y-2">
                 <Label htmlFor="preferredFoot">القدم المفضلة</Label>
-                <Select value={formData.preferredFoot} onValueChange={(value) => setFormData(prev => ({ ...prev, preferredFoot: value }))}>
+                <Select value={formData.preferred_foot} onValueChange={(value) => setFormData(prev => ({ ...prev, preferred_foot: value }))}>
                   <SelectTrigger dir="rtl">
                     <SelectValue placeholder="اختر القدم" />
                   </SelectTrigger>
@@ -287,8 +294,8 @@ const AddPlayerForm = ({ onClose, onPlayerAdded }: AddPlayerFormProps) => {
                 <Input
                   id="contractUntil"
                   placeholder="2026"
-                  value={formData.contractUntil}
-                  onChange={(e) => setFormData(prev => ({ ...prev, contractUntil: e.target.value }))}
+                  value={formData.contract_until}
+                  onChange={(e) => setFormData(prev => ({ ...prev, contract_until: e.target.value }))}
                 />
               </div>
             </div>
@@ -326,8 +333,8 @@ const AddPlayerForm = ({ onClose, onPlayerAdded }: AddPlayerFormProps) => {
                   id="marketValue"
                   type="number"
                   min="0"
-                  value={formData.marketValue}
-                  onChange={(e) => setFormData(prev => ({ ...prev, marketValue: e.target.value }))}
+                  value={formData.market_value}
+                  onChange={(e) => setFormData(prev => ({ ...prev, market_value: e.target.value }))}
                 />
               </div>
             </div>
@@ -370,8 +377,8 @@ const AddPlayerForm = ({ onClose, onPlayerAdded }: AddPlayerFormProps) => {
                   id="yellowCards"
                   type="number"
                   min="0"
-                  value={formData.yellowCards}
-                  onChange={(e) => setFormData(prev => ({ ...prev, yellowCards: e.target.value }))}
+                  value={formData.yellow_cards}
+                  onChange={(e) => setFormData(prev => ({ ...prev, yellow_cards: e.target.value }))}
                 />
               </div>
               <div className="space-y-2">
@@ -380,8 +387,8 @@ const AddPlayerForm = ({ onClose, onPlayerAdded }: AddPlayerFormProps) => {
                   id="redCards"
                   type="number"
                   min="0"
-                  value={formData.redCards}
-                  onChange={(e) => setFormData(prev => ({ ...prev, redCards: e.target.value }))}
+                  value={formData.red_cards}
+                  onChange={(e) => setFormData(prev => ({ ...prev, red_cards: e.target.value }))}
                 />
               </div>
             </div>
@@ -537,7 +544,7 @@ const AddPlayerForm = ({ onClose, onPlayerAdded }: AddPlayerFormProps) => {
             <div className="flex gap-4 pt-6">
               <Button type="submit" disabled={isLoading} className="flex-1 btn-primary">
                 <Plus className="w-4 h-4 ml-2" />
-                {isLoading ? 'جاري الإضافة...' : 'إضافة اللاعب'}
+                {isLoading ? 'جارٍ الحفظ...' : isEdit ? 'تحديث اللاعب' : 'إضافة اللاعب'}
               </Button>
               <Button type="button" variant="outline" onClick={onClose}>
                 إلغاء
@@ -550,4 +557,4 @@ const AddPlayerForm = ({ onClose, onPlayerAdded }: AddPlayerFormProps) => {
   );
 };
 
-export default AddPlayerForm;
+export default PlayerForm;
