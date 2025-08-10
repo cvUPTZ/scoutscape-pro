@@ -1,4 +1,3 @@
-
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,6 +29,11 @@ interface PlayerMetrics {
   speed?: number;
 }
 
+interface VideoSegment {
+  title: string;
+  url: string;
+}
+
 interface Player {
   id: number;
   name: string;
@@ -52,6 +56,7 @@ interface Player {
   yellowCards: number;
   redCards: number;
   appearances: number;
+  videoSegments?: VideoSegment[];
 }
 
 interface PlayerDetailModalProps {

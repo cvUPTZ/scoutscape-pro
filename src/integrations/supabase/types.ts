@@ -14,7 +14,133 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      report_players: {
+        Row: {
+          created_at: string
+          id: string
+          mental_rating: number | null
+          notes: string | null
+          performance_rating: number | null
+          physical_rating: number | null
+          player_name: string
+          position: string | null
+          recommendation: string | null
+          report_id: string
+          technical_rating: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mental_rating?: number | null
+          notes?: string | null
+          performance_rating?: number | null
+          physical_rating?: number | null
+          player_name: string
+          position?: string | null
+          recommendation?: string | null
+          report_id: string
+          technical_rating?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mental_rating?: number | null
+          notes?: string | null
+          performance_rating?: number | null
+          physical_rating?: number | null
+          player_name?: string
+          position?: string | null
+          recommendation?: string | null
+          report_id?: string
+          technical_rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_players_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports: {
+        Row: {
+          created_at: string
+          id: string
+          match_info: string | null
+          player_name: string
+          scout_id: string
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          match_info?: string | null
+          player_name: string
+          scout_id: string
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          match_info?: string | null
+          player_name?: string
+          scout_id?: string
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      video_segments: {
+        Row: {
+          created_at: string
+          end_time: number | null
+          id: string
+          notes: string | null
+          player_name: string
+          report_id: string
+          start_time: number | null
+          tags: string[] | null
+          title: string
+          video_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          end_time?: number | null
+          id?: string
+          notes?: string | null
+          player_name: string
+          report_id: string
+          start_time?: number | null
+          tags?: string[] | null
+          title: string
+          video_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          end_time?: number | null
+          id?: string
+          notes?: string | null
+          player_name?: string
+          report_id?: string
+          start_time?: number | null
+          tags?: string[] | null
+          title?: string
+          video_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_segments_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
