@@ -8,7 +8,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Settings, Save, Download, Upload, Trash2, Users, Shield, Bell, Globe } from "lucide-react";
-import { dbService, AdminSettings as AdminSettingsType } from "@/utils/indexedDB";
+import { dbService } from "@/utils/dbService";
+
+interface AdminSettingsType {
+  currency: string;
+  showCurrency: boolean;
+}
 
 interface AdminSettingsProps {
   onSettingsChange: (settings: AdminSettingsType) => void;

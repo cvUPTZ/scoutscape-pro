@@ -1,6 +1,5 @@
-
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabaseClient';
 
 export interface Report {
   id: string;
@@ -39,17 +38,51 @@ export interface VideoSegment {
   created_at: string;
 }
 
-export const useReports = () => {
-  return useQuery({
-    queryKey: ['reports'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('reports')
-        .select('*')
-        .order('created_at', { ascending: false });
-      
+export const fetchReportsForPlayer = async (playerId: number) => {
+  const { data, error } = await supabase
+    .from("match_reports")
+    .select("*")
+    .eq("player_id", playerId)
+    .order("match_date", { ascending: false });
+
+  if (error) throw error;
+  return data || [];
+};
+
+export const useReports = (playerId?: number) => {
+  return useQuery(["reports", playerId], () => fetchReportsForPlayer(playerId as number), {
+    enabled: !!playerId,
+    staleTime: 1000 * 10,
+    refetchOnWindowFocus: false,
+  });
+};
+
+export const useAddReport = (playerId: number) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (report: any) => {
+      const { data, error } = await supabase.from("match_reports").insert(report).select("*").single();
       if (error) throw error;
-      return data as Report[];
+      return data;
+    },
+    onMutate: async (newReport) => {
+      await queryClient.cancelQueries({ queryKey: ["reports", playerId] });
+      const previousReports = queryClient.getQueryData<any[]>(["reports", playerId]) || [];
+
+      const optimisticReport = {
+        id: Math.random(),
+        ...newReport,
+        player_id: playerId,
+      };
+
+      queryClient.setQueryData<any[]>(["reports", playerId], (old = []) => [optimisticReport, ...old]);
+      return { previousReports };
+    },
+    onError: (_err: any, _newReport: any, context: any) => {
+      queryClient.setQueryData(["reports", playerId], context?.previousReports);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["reports", playerId] });
     },
   });
 };
