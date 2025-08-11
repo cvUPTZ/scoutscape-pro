@@ -14,6 +14,12 @@ const Header = () => {
                     <h1 className="text-2xl font-bold text-primary">سكاوت الجزائر</h1>
                 </Link>
                 <div className="flex items-center space-x-reverse space-x-4">
+                    <Link to="/connections">
+                        <Button variant="outline">Connections</Button>
+                    </Link>
+                    <Link to="/messages">
+                        <Button variant="outline">Messages</Button>
+                    </Link>
                     {role === 'admin' && (
                         <Link to="/admin">
                             <Button variant="outline">Admin</Button>

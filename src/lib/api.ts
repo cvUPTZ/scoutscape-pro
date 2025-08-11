@@ -46,6 +46,82 @@ export const getPlayer = async (id: number) => {
     return data;
 }
 
+export const getConnections = async () => {
+    const { data, error } = await supabase
+        .from('connections')
+        .select('*');
+
+    if (error) {
+        console.error('Error fetching connections:', error);
+        throw new Error(error.message);
+    }
+
+    return data;
+}
+
+export const createConnection = async (addressee_id: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+        .from('connections')
+        .insert({
+            requester_id: user.id,
+            addressee_id,
+        })
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
+export const updateConnection = async (id: number, status: string) => {
+    const { data, error } = await supabase
+        .from('connections')
+        .update({ status, updated_at: new Date().toISOString() })
+        .eq('id', id)
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
+export const getMessages = async (connectionId: number) => {
+    const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('connection_id', connectionId)
+        .order('created_at');
+
+    if (error) {
+        console.error('Error fetching messages:', error);
+        throw new Error(error.message);
+    }
+
+    return data;
+}
+
+export const createMessage = async (connection_id: number, receiver_id: string, content: string) => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) throw new Error('User not authenticated');
+
+    const { data, error } = await supabase
+        .from('messages')
+        .insert({
+            sender_id: user.id,
+            receiver_id,
+            connection_id,
+            content,
+        })
+        .select()
+        .single();
+
+    if (error) throw error;
+    return data;
+}
+
 export const getClubs = async () => {
     const { data, error } = await supabase
         .from('clubs')

@@ -7,11 +7,20 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Award, BarChart2, Calendar, DollarSign, Shield, Star, Users, Video } from 'lucide-react';
 import VideoSegments from '@/components/VideoSegments';
 import { usePlayerVideoSegments } from '@/hooks/useReports';
+import { useCreateConnection } from '@/hooks/useNetwork';
+import { Button } from '@/components/ui/button';
 
 const PlayerProfile = () => {
     const { id } = useParams<{ id: string }>();
     const { data: player, isLoading, error } = usePlayer(Number(id));
     const { data: segments } = usePlayerVideoSegments(Number(id));
+    const createConnection = useCreateConnection();
+
+    const handleConnect = () => {
+        if (player) {
+            createConnection.mutate(player.created_by);
+        }
+    };
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -35,7 +44,12 @@ const PlayerProfile = () => {
                             <AvatarFallback>{player.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <CardTitle className="text-3xl">{player.name}</CardTitle>
+                            <div className="flex items-center space-x-4">
+                                <CardTitle className="text-3xl">{player.name}</CardTitle>
+                                <Button onClick={handleConnect} disabled={createConnection.isPending}>
+                                    Connect
+                                </Button>
+                            </div>
                             <div className="flex items-center space-x-2 text-muted-foreground">
                                 <span>{player.position}</span>
                                 <span>&bull;</span>

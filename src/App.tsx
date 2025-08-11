@@ -14,6 +14,8 @@ import Reports from "./pages/Reports";
 import Statistics from "./pages/Statistics";
 import PlayerProfile from "./pages/PlayerProfile";
 import Admin from "./pages/Admin";
+import Messages from "./pages/Messages";
+import Connections from "./pages/Connections";
 import Layout from "./components/Layout";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useSupabaseRealtime } from "@/hooks/useRealtime";
@@ -69,6 +71,8 @@ const App = () => {
                 <Route path="/statistics" element={<ProtectedRoute><Layout><Statistics /></Layout></ProtectedRoute>} />
                 <Route path="/player/:id" element={<ProtectedRoute><Layout><PlayerProfile /></Layout></ProtectedRoute>} />
                 <Route path="/admin" element={<AdminRoute><Layout><Admin /></Layout></AdminRoute>} />
+                <Route path="/messages" element={<ProtectedRoute><Layout><Messages /></Layout></ProtectedRoute>} />
+                <Route path="/connections" element={<ProtectedRoute><Layout><Connections /></Layout></ProtectedRoute>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
