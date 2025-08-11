@@ -56,7 +56,7 @@ export default function PlayerDetailModal({
 
         {showForm ? (
           <PlayerForm
-            player={addMode ? null : player}
+            player={addMode ? undefined : player}
             onPlayerSaved={handlePlayerSaved}
             onCancel={() => {
               setShowForm(false);

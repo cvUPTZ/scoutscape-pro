@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabaseClient";
 import type { Player } from "@/types";
@@ -12,7 +13,9 @@ export const fetchPlayers = async (): Promise<Player[]> => {
 };
 
 export const usePlayers = () => {
-  return useQuery<Player[], Error>(["players"], fetchPlayers, {
+  return useQuery({
+    queryKey: ["players"],
+    queryFn: fetchPlayers,
     staleTime: 1000 * 10,
     refetchOnWindowFocus: false,
   });

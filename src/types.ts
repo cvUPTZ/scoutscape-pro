@@ -1,3 +1,4 @@
+
 export interface PlayerMetrics {
   pace?: number;
   shooting?: number;
@@ -15,7 +16,7 @@ export interface PlayerMetrics {
 
 export interface VideoSegment {
   title: string;
-  url:string;
+  url: string;
 }
 
 export interface Player {
@@ -40,6 +41,7 @@ export interface Player {
   yellow_cards: number;
   red_cards: number;
   appearances: number;
+  notes?: string;
   created_at: string;
   created_by: string;
 }

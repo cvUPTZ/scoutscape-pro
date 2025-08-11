@@ -14,6 +14,143 @@ export type Database = {
   }
   public: {
     Tables: {
+      match_reports: {
+        Row: {
+          created_at: string | null
+          id: number
+          match_date: string | null
+          match_info: string | null
+          mental_rating: number | null
+          notes: string | null
+          performance_rating: number | null
+          physical_rating: number | null
+          player_id: number | null
+          recommendation: string | null
+          scout_id: string | null
+          technical_rating: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: number
+          match_date?: string | null
+          match_info?: string | null
+          mental_rating?: number | null
+          notes?: string | null
+          performance_rating?: number | null
+          physical_rating?: number | null
+          player_id?: number | null
+          recommendation?: string | null
+          scout_id?: string | null
+          technical_rating?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: number
+          match_date?: string | null
+          match_info?: string | null
+          mental_rating?: number | null
+          notes?: string | null
+          performance_rating?: number | null
+          physical_rating?: number | null
+          player_id?: number | null
+          recommendation?: string | null
+          scout_id?: string | null
+          technical_rating?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "match_reports_player_id_fkey"
+            columns: ["player_id"]
+            isOneToOne: false
+            referencedRelation: "players"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      players: {
+        Row: {
+          age: number
+          appearances: number | null
+          assists: number | null
+          club: string
+          contract_until: string | null
+          created_at: string | null
+          created_by: string | null
+          goals: number | null
+          height: string
+          id: number
+          image: string | null
+          location: string
+          market_value: number | null
+          metrics: Json | null
+          name: string
+          nationality: string
+          notes: string | null
+          position: string
+          potential: number | null
+          preferred_foot: string
+          rating: number | null
+          red_cards: number | null
+          weight: string
+          yellow_cards: number | null
+        }
+        Insert: {
+          age: number
+          appearances?: number | null
+          assists?: number | null
+          club: string
+          contract_until?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          goals?: number | null
+          height: string
+          id?: number
+          image?: string | null
+          location: string
+          market_value?: number | null
+          metrics?: Json | null
+          name: string
+          nationality: string
+          notes?: string | null
+          position: string
+          potential?: number | null
+          preferred_foot: string
+          rating?: number | null
+          red_cards?: number | null
+          weight: string
+          yellow_cards?: number | null
+        }
+        Update: {
+          age?: number
+          appearances?: number | null
+          assists?: number | null
+          club?: string
+          contract_until?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          goals?: number | null
+          height?: string
+          id?: number
+          image?: string | null
+          location?: string
+          market_value?: number | null
+          metrics?: Json | null
+          name?: string
+          nationality?: string
+          notes?: string | null
+          position?: string
+          potential?: number | null
+          preferred_foot?: string
+          rating?: number | null
+          red_cards?: number | null
+          weight?: string
+          yellow_cards?: number | null
+        }
+        Relationships: []
+      }
       report_players: {
         Row: {
           created_at: string
