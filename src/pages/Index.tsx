@@ -1,274 +1,229 @@
 
-import { useState, useMemo } from 'react';
+import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
-import PlayerForm from '@/components/PlayerForm';
-import PlayerCard from '@/components/PlayerCard';
-import PlayerDetailModal from '@/components/PlayerDetailModal';
-import AdminSettings from '@/components/AdminSettings';
-import ScoutDashboard from '@/components/ScoutDashboard';
-import MarketOverview from '@/components/MarketOverview';
-import PlayerStats from '@/components/PlayerStats';
-import WatchPage from '@/components/WatchPage';
-import { 
-  Users, 
-  Settings, 
-  BarChart3, 
-  TrendingUp, 
-  Search,
-  Filter,
-  Eye,
-  UserPlus,
-  Target,
-  Video
-} from 'lucide-react';
-import { dbService } from '@/utils/dbService';
-import { Player } from '@/types';
-import { usePlayers, useDeletePlayer } from '@/hooks/usePlayers';
-import { useQueryClient } from '@tanstack/react-query';
+import { Users, Target, TrendingUp, Award, Search, BarChart3 } from "lucide-react";
+import { Link } from "react-router-dom";
 
-const Index = () => {
-  const { data: players = [], isLoading, error } = usePlayers();
-  const deletePlayerMutation = useDeletePlayer();
-  const [isAddPlayerModalOpen, setIsAddPlayerModalOpen] = useState(false);
-  const [selectedPlayer, setSelectedPlayer] = useState<Player | null>(null);
-  const [editPlayer, setEditPlayer] = useState<Player | null>(null);
-  const [isPlayerDetailModalOpen, setIsPlayerDetailModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("dashboard");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [filterPosition, setFilterPosition] = useState("الكل");
-  const [sortOption, setSortOption] = useState("rating");
-  const [sortOrder, setSortOrder] = useState("desc");
-  const [showCurrency, setShowCurrency] = useState(true);
-  const [currency, setCurrency] = useState("EUR");
-  const queryClient = useQueryClient();
+export default function Index() {
+  const { user, signOut } = useAuth();
 
-  const handlePlayerSaved = () => {
-    queryClient.invalidateQueries({ queryKey: ['players'] });
-    setIsAddPlayerModalOpen(false);
-    setEditPlayer(null);
-  };
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-background to-accent/5" dir="rtl">
+        {/* Header */}
+        <header className="border-b bg-white/80 backdrop-blur-sm">
+          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+            <div className="flex items-center space-x-reverse space-x-2">
+              <Target className="h-8 w-8 text-primary" />
+              <h1 className="text-2xl font-bold text-primary">سكاوت الجزائر</h1>
+            </div>
+            <div className="flex space-x-reverse space-x-4">
+              <Link to="/auth">
+                <Button variant="outline">تسجيل الدخول</Button>
+              </Link>
+              <Link to="/auth">
+                <Button>إنشاء حساب</Button>
+              </Link>
+            </div>
+          </div>
+        </header>
 
-  const handlePlayerClick = (player: Player) => {
-    setSelectedPlayer(player);
-    setIsPlayerDetailModalOpen(true);
-  };
+        {/* Hero Section */}
+        <section className="py-20 text-center">
+          <div className="container mx-auto px-4">
+            <h2 className="text-5xl font-bold mb-6 text-gradient-primary arabic-text">
+              منصة الكشافة الاحترافية للمواهب الجزائرية
+            </h2>
+            <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto arabic-text leading-relaxed">
+              اكتشف وقيم وطور المواهب الكروية في الجزائر باستخدام أحدث التقنيات والأدوات المتقدمة
+            </p>
+            <div className="flex justify-center space-x-reverse space-x-4">
+              <Link to="/auth">
+                <Button size="lg" className="btn-primary">
+                  ابدأ الآن مجاناً
+                </Button>
+              </Link>
+              <Button variant="outline" size="lg">
+                شاهد العرض التوضيحي
+              </Button>
+            </div>
+          </div>
+        </section>
 
-  const handleClosePlayerDetailModal = () => {
-    setIsPlayerDetailModalOpen(false);
-  };
+        {/* Features */}
+        <section className="py-16 bg-muted/30">
+          <div className="container mx-auto px-4">
+            <h3 className="text-3xl font-bold text-center mb-12 arabic-text">
+              لماذا تختار سكاوت الجزائر؟
+            </h3>
+            <div className="grid md:grid-cols-3 gap-8">
+              <Card className="card-scout">
+                <CardHeader className="text-center">
+                  <Search className="h-12 w-12 text-primary mx-auto mb-4" />
+                  <CardTitle className="arabic-text">كشافة متقدمة</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-center arabic-text">
+                    أدوات كشافة احترافية لتقييم اللاعبين وتحليل الأداء بدقة عالية
+                  </CardDescription>
+                </CardContent>
+              </Card>
 
-  const filteredPlayers = useMemo(() => {
-    const playersArray = Array.isArray(players) ? players : [];
-    return playersArray.filter((player) => {
-      const searchRegex = new RegExp(searchTerm, "i");
-      const positionMatch =
-        filterPosition === "الكل" || player.position === filterPosition;
-      return (searchRegex.test(player.name) || searchRegex.test(player.club)) && positionMatch;
-    });
-  }, [players, searchTerm, filterPosition]);
+              <Card className="card-scout">
+                <CardHeader className="text-center">
+                  <BarChart3 className="h-12 w-12 text-primary mx-auto mb-4" />
+                  <CardTitle className="arabic-text">تحليل شامل</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-center arabic-text">
+                    تقارير مفصلة وإحصائيات دقيقة لمساعدتك في اتخاذ القرارات الصحيحة
+                  </CardDescription>
+                </CardContent>
+              </Card>
 
-  const sortedPlayers = useMemo(() => [...filteredPlayers].sort((a, b) => {
-    let comparison = 0;
-    switch (sortOption) {
-      case "name":
-        comparison = a.name.localeCompare(b.name);
-        break;
-      case "age":
-        comparison = a.age - b.age;
-        break;
-      case "rating":
-        comparison = a.rating - b.rating;
-        break;
-      case "market_value":
-        comparison = a.market_value - b.market_value;
-        break;
-      default:
-        comparison = a.rating - b.rating;
-    }
-    return sortOrder === "asc" ? comparison : -comparison;
-  }), [filteredPlayers, sortOption, sortOrder]);
+              <Card className="card-scout">
+                <CardHeader className="text-center">
+                  <Users className="h-12 w-12 text-primary mx-auto mb-4" />
+                  <CardTitle className="arabic-text">شبكة احترافية</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-center arabic-text">
+                    تواصل مع الكشافين والأندية والمدربين في جميع أنحاء الجزائر
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </section>
 
-  const playerPositions = useMemo(() => {
-    const playersArray = Array.isArray(players) ? players : [];
-    return ["الكل", ...new Set(playersArray.map((player) => player.position))];
-  }, [players]);
+        {/* Stats */}
+        <section className="py-16">
+          <div className="container mx-auto px-4">
+            <div className="grid md:grid-cols-4 gap-8 text-center">
+              <div className="stat-card p-6">
+                <h4 className="text-3xl font-bold text-primary mb-2">500+</h4>
+                <p className="text-muted-foreground arabic-text">لاعب مسجل</p>
+              </div>
+              <div className="stat-card p-6">
+                <h4 className="text-3xl font-bold text-primary mb-2">50+</h4>
+                <p className="text-muted-foreground arabic-text">كشاف نشط</p>
+              </div>
+              <div className="stat-card p-6">
+                <h4 className="text-3xl font-bold text-primary mb-2">25+</h4>
+                <p className="text-muted-foreground arabic-text">نادي شريك</p>
+              </div>
+              <div className="stat-card p-6">
+                <h4 className="text-3xl font-bold text-primary mb-2">48</h4>
+                <p className="text-muted-foreground arabic-text">ولاية مغطاة</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <section className="py-20 bg-primary text-primary-foreground">
+          <div className="container mx-auto px-4 text-center">
+            <h3 className="text-3xl font-bold mb-6 arabic-text">
+              انضم إلى مستقبل كرة القدم الجزائرية
+            </h3>
+            <p className="text-xl mb-8 opacity-90 arabic-text">
+              ابدأ رحلتك في اكتشاف المواهب اليوم
+            </p>
+            <Link to="/auth">
+              <Button size="lg" variant="secondary">
+                سجل الآن مجاناً
+              </Button>
+            </Link>
+          </div>
+        </section>
+
+        {/* Footer */}
+        <footer className="border-t bg-muted/30 py-8">
+          <div className="container mx-auto px-4 text-center">
+            <p className="text-muted-foreground arabic-text">
+              © 2024 سكاوت الجزائر. جميع الحقوق محفوظة.
+            </p>
+          </div>
+        </footer>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <header className="bg-white shadow-md sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-6 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-slate-900">
-            منصة استكشاف المواهب الكروية
-          </h1>
-          <div className="flex gap-4">
-            <Button onClick={() => setIsAddPlayerModalOpen(true)} className="gap-2">
-              <UserPlus className="w-4 h-4" />
-              إضافة لاعب
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/10" dir="rtl">
+      <header className="border-b bg-white/80 backdrop-blur-sm">
+        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+          <div className="flex items-center space-x-reverse space-x-2">
+            <Target className="h-8 w-8 text-primary" />
+            <h1 className="text-2xl font-bold text-primary">سكاوت الجزائر</h1>
+          </div>
+          <div className="flex items-center space-x-reverse space-x-4">
+            <span className="text-sm text-muted-foreground arabic-text">
+              مرحباً، {user.email}
+            </span>
+            <Button onClick={signOut} variant="outline">
+              تسجيل الخروج
             </Button>
           </div>
         </div>
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid grid-cols-1 md:grid-cols-6 gap-2">
-            <TabsTrigger value="dashboard" className="col-span-1 md:col-span-1 gap-2">
-              <BarChart3 className="w-4 h-4" />
-              لوحة التحكم
-            </TabsTrigger>
-            <TabsTrigger value="market" className="col-span-1 md:col-span-1 gap-2">
-              <TrendingUp className="w-4 h-4" />
-              نظرة على السوق
-            </TabsTrigger>
-            <TabsTrigger value="players" className="col-span-1 md:col-span-1 gap-2">
-              <Users className="w-4 h-4" />
-              اللاعبون
-            </TabsTrigger>
-            <TabsTrigger value="watch" className="col-span-1 md:col-span-1 gap-2">
-              <Eye className="w-4 h-4" />
-              مشاهدة وتحليل
-            </TabsTrigger>
-            <TabsTrigger value="stats" className="col-span-1 md:col-span-1 gap-2">
-              <Target className="w-4 h-4" />
-              إحصائيات اللاعبين
-            </TabsTrigger>
-            <TabsTrigger value="settings" className="col-span-1 md:col-span-1 gap-2">
-              <Settings className="w-4 h-4" />
-              الإعدادات
-            </TabsTrigger>
-          </TabsList>
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-bold mb-4 arabic-text">لوحة التحكم الرئيسية</h2>
+          <p className="text-muted-foreground arabic-text">
+            إدارة الكشافة والتقارير والمواهب
+          </p>
+        </div>
 
-          <TabsContent value="dashboard" className="space-y-6">
-            <ScoutDashboard />
-          </TabsContent>
+        <div className="grid md:grid-cols-3 gap-6">
+          <Card className="card-scout">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-reverse space-x-2 arabic-text">
+                <Users className="h-5 w-5" />
+                <span>إدارة اللاعبين</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground arabic-text mb-4">
+                عرض وإدارة ملفات اللاعبين والمواهب المكتشفة
+              </p>
+              <Button className="w-full">عرض اللاعبين</Button>
+            </CardContent>
+          </Card>
 
-          <TabsContent value="market" className="space-y-6">
-            <MarketOverview />
-          </TabsContent>
+          <Card className="card-scout">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-reverse space-x-2 arabic-text">
+                <BarChart3 className="h-5 w-5" />
+                <span>التقارير</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground arabic-text mb-4">
+                إنشاء ومراجعة تقارير الكشافة والتقييمات
+              </p>
+              <Button className="w-full">إدارة التقارير</Button>
+            </CardContent>
+          </Card>
 
-          <TabsContent value="players" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>قائمة اللاعبين</CardTitle>
-                <CardDescription>استعرض وعدّل بيانات اللاعبين.</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-1">
-                    <Label htmlFor="search">بحث عن لاعب</Label>
-                    <div className="relative">
-                      <Input
-                        id="search"
-                        placeholder="ابحث بالاسم..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        className="pl-10"
-                      />
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                    </div>
-                  </div>
-                  <div className="md:col-span-1">
-                    <Label>تصفية حسب المركز</Label>
-                    <Select value={filterPosition} onValueChange={setFilterPosition}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="الكل" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {playerPositions.map((position) => (
-                          <SelectItem key={position} value={position}>
-                            {position}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="md:col-span-1">
-                    <Label>ترتيب حسب</Label>
-                    <Select value={sortOption} onValueChange={setSortOption}>
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="التقييم" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="name">الاسم</SelectItem>
-                        <SelectItem value="age">العمر</SelectItem>
-                        <SelectItem value="rating">التقييم</SelectItem>
-                        <SelectItem value="market_value">القيمة السوقية</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <div className="flex items-center mt-2">
-                      <Switch id="sort-order" checked={sortOrder === "asc"} onCheckedChange={(checked) => setSortOrder(checked ? "asc" : "desc")} />
-                      <Label htmlFor="sort-order" className="ml-2 text-sm">
-                        تصاعدي
-                      </Label>
-                    </div>
-                  </div>
-                </div>
-                {isLoading && <p>جارٍ تحميل اللاعبين...</p>}
-                {error && <p className="text-red-600">خطأ في جلب اللاعبين: {error.message}</p>}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {sortedPlayers.map((player) => (
-                    <PlayerCard
-                      key={player.id}
-                      player={player}
-                      currency={currency}
-                      showCurrency={showCurrency}
-                      onViewDetails={handlePlayerClick}
-                      onEdit={(p) => setEditPlayer(p)}
-                      onDelete={(id) => deletePlayerMutation.mutate(id)}
-                    />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="watch" className="space-y-6">
-            <WatchPage players={Array.isArray(players) ? players : []} />
-          </TabsContent>
-
-          <TabsContent value="stats" className="space-y-6">
-            <PlayerStats players={Array.isArray(players) ? players : []} />
-          </TabsContent>
-
-          <TabsContent value="settings" className="space-y-6">
-            <AdminSettings onSettingsChange={() => {}} />
-          </TabsContent>
-        </Tabs>
-
-        {(isAddPlayerModalOpen || editPlayer) && (
-          <PlayerDetailModal
-            player={editPlayer}
-            isOpen={isAddPlayerModalOpen || !!editPlayer}
-            onClose={() => {
-              setIsAddPlayerModalOpen(false);
-              setEditPlayer(null);
-            }}
-            onPlayerUpdated={handlePlayerSaved}
-            currency={currency}
-            showCurrency={showCurrency}
-            addMode={isAddPlayerModalOpen}
-          />
-        )}
-
-        {selectedPlayer && !editPlayer && (
-          <PlayerDetailModal
-            player={selectedPlayer}
-            isOpen={isPlayerDetailModalOpen}
-            onClose={handleClosePlayerDetailModal}
-            currency={currency}
-            showCurrency={showCurrency}
-          />
-        )}
+          <Card className="card-scout">
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-reverse space-x-2 arabic-text">
+                <Award className="h-5 w-5" />
+                <span>الإحصائيات</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground arabic-text mb-4">
+                تحليل الأداء والإحصائيات الشاملة
+              </p>
+              <Button className="w-full">عرض الإحصائيات</Button>
+            </CardContent>
+          </Card>
+        </div>
       </main>
     </div>
   );
-};
-
-export default Index;
+}

@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useAuth } from "@/context/AuthContext";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Target } from "lucide-react";
 
 export default function Auth() {
   const { user } = useAuth();
@@ -25,7 +25,6 @@ export default function Auth() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // Redirect if already authenticated
   useEffect(() => {
     if (user) {
       navigate("/");
@@ -45,13 +44,13 @@ export default function Auth() {
       
       if (error) {
         if (error.message.includes("Invalid login credentials")) {
-          setError("Invalid email or password. Please check your credentials and try again.");
+          setError("البريد الإلكتروني أو كلمة المرور غير صحيحة. يرجى التحقق من بياناتك والمحاولة مرة أخرى.");
         } else {
-          setError(error.message);
+          setError("حدث خطأ في تسجيل الدخول. يرجى المحاولة مرة أخرى.");
         }
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+      setError("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
     } finally {
       setLoading(false);
     }
@@ -64,13 +63,13 @@ export default function Auth() {
     setSuccess("");
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match");
+      setError("كلمتا المرور غير متطابقتين");
       setLoading(false);
       return;
     }
 
     if (password.length < 6) {
-      setError("Password must be at least 6 characters long");
+      setError("يجب أن تكون كلمة المرور 6 أحرف على الأقل");
       setLoading(false);
       return;
     }
@@ -89,20 +88,19 @@ export default function Auth() {
 
       if (error) {
         if (error.message.includes("User already registered")) {
-          setError("An account with this email already exists. Please sign in instead.");
+          setError("يوجد حساب مسجل بهذا البريد الإلكتروني بالفعل. يرجى تسجيل الدخول بدلاً من ذلك.");
         } else {
-          setError(error.message);
+          setError("حدث خطأ في إنشاء الحساب. يرجى المحاولة مرة أخرى.");
         }
       } else {
-        setSuccess("Account created successfully! Please check your email to verify your account.");
-        // Clear form
+        setSuccess("تم إنشاء الحساب بنجاح! يرجى التحقق من بريدك الإلكتروني لتفعيل الحساب.");
         setEmail("");
         setPassword("");
         setConfirmPassword("");
         setFullName("");
       }
     } catch (err) {
-      setError("An unexpected error occurred. Please try again.");
+      setError("حدث خطأ غير متوقع. يرجى المحاولة مرة أخرى.");
     } finally {
       setLoading(false);
     }
@@ -118,90 +116,93 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/10 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/10 flex items-center justify-center p-4" dir="rtl">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">
-            Scout Platform
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Professional scouting and player management
+          <div className="flex items-center justify-center space-x-reverse space-x-2 mb-4">
+            <Target className="h-10 w-10 text-primary" />
+            <h1 className="text-3xl font-bold tracking-tight text-foreground arabic-text">
+              سكاوت الجزائر
+            </h1>
+          </div>
+          <p className="text-muted-foreground arabic-text">
+            منصة الكشافة الاحترافية وإدارة اللاعبين
           </p>
         </div>
 
         <Card className="shadow-lg border-0 bg-card/50 backdrop-blur-sm">
           <Tabs defaultValue="login" className="w-full" onValueChange={resetForm}>
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login" className="text-sm font-medium">
-                Sign In
+              <TabsTrigger value="login" className="text-sm font-medium arabic-text">
+                تسجيل الدخول
               </TabsTrigger>
-              <TabsTrigger value="register" className="text-sm font-medium">
-                Sign Up
+              <TabsTrigger value="register" className="text-sm font-medium arabic-text">
+                إنشاء حساب
               </TabsTrigger>
             </TabsList>
 
             {error && (
               <Alert variant="destructive" className="mb-4">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription className="arabic-text">{error}</AlertDescription>
               </Alert>
             )}
 
             {success && (
               <Alert className="mb-4 border-green-200 bg-green-50 text-green-800">
-                <AlertDescription>{success}</AlertDescription>
+                <AlertDescription className="arabic-text">{success}</AlertDescription>
               </Alert>
             )}
 
             <TabsContent value="login">
               <CardHeader className="pb-4">
-                <CardTitle className="text-xl">Welcome back</CardTitle>
-                <CardDescription>
-                  Sign in to your account to continue
+                <CardTitle className="text-xl arabic-text">مرحباً بك مرة أخرى</CardTitle>
+                <CardDescription className="arabic-text">
+                  سجل دخولك للوصول إلى حسابك
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleLogin} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email">Email</Label>
+                    <Label htmlFor="login-email" className="arabic-text">البريد الإلكتروني</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Mail className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="login-email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                        className="pl-10"
+                        placeholder="أدخل بريدك الإلكتروني"
+                        className="pr-10"
                         required
                       />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="login-password">Password</Label>
+                    <Label htmlFor="login-password" className="arabic-text">كلمة المرور</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Lock className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="login-password"
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Enter your password"
-                        className="pl-10 pr-10"
+                        placeholder="أدخل كلمة المرور"
+                        className="pr-10 pl-10"
                         required
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                        className="absolute left-3 top-3 text-muted-foreground hover:text-foreground"
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Signing in..." : "Sign In"}
+                  <Button type="submit" className="w-full arabic-text" disabled={loading}>
+                    {loading ? "جاري تسجيل الدخول..." : "تسجيل الدخول"}
                   </Button>
                 </form>
               </CardContent>
@@ -209,63 +210,63 @@ export default function Auth() {
 
             <TabsContent value="register">
               <CardHeader className="pb-4">
-                <CardTitle className="text-xl">Create account</CardTitle>
-                <CardDescription>
-                  Join our platform to start scouting
+                <CardTitle className="text-xl arabic-text">إنشاء حساب جديد</CardTitle>
+                <CardDescription className="arabic-text">
+                  انضم إلى منصتنا وابدأ في اكتشاف المواهب
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <form onSubmit={handleSignUp} className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
+                    <Label htmlFor="signup-name" className="arabic-text">الاسم الكامل</Label>
                     <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <User className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="signup-name"
                         type="text"
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Enter your full name"
-                        className="pl-10"
+                        placeholder="أدخل اسمك الكامل"
+                        className="pr-10"
                         required
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="signup-email">Email</Label>
+                    <Label htmlFor="signup-email" className="arabic-text">البريد الإلكتروني</Label>
                     <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Mail className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="signup-email"
                         type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Enter your email"
-                        className="pl-10"
+                        placeholder="أدخل بريدك الإلكتروني"
+                        className="pr-10"
                         required
                       />
                     </div>
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="signup-password">Password</Label>
+                    <Label htmlFor="signup-password" className="arabic-text">كلمة المرور</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Lock className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="signup-password"
                         type={showPassword ? "text" : "password"}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        placeholder="Create a password"
-                        className="pl-10 pr-10"
+                        placeholder="أنشئ كلمة مرور"
+                        className="pr-10 pl-10"
                         required
                         minLength={6}
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                        className="absolute left-3 top-3 text-muted-foreground hover:text-foreground"
                       >
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
@@ -273,31 +274,31 @@ export default function Auth() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="signup-confirm-password">Confirm Password</Label>
+                    <Label htmlFor="signup-confirm-password" className="arabic-text">تأكيد كلمة المرور</Label>
                     <div className="relative">
-                      <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                      <Lock className="absolute right-3 top-3 h-4 w-4 text-muted-foreground" />
                       <Input
                         id="signup-confirm-password"
                         type={showConfirmPassword ? "text" : "password"}
                         value={confirmPassword}
                         onChange={(e) => setConfirmPassword(e.target.value)}
-                        placeholder="Confirm your password"
-                        className="pl-10 pr-10"
+                        placeholder="أكد كلمة المرور"
+                        className="pr-10 pl-10"
                         required
                         minLength={6}
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                        className="absolute left-3 top-3 text-muted-foreground hover:text-foreground"
                       >
                         {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
 
-                  <Button type="submit" className="w-full" disabled={loading}>
-                    {loading ? "Creating account..." : "Create Account"}
+                  <Button type="submit" className="w-full arabic-text" disabled={loading}>
+                    {loading ? "جاري إنشاء الحساب..." : "إنشاء الحساب"}
                   </Button>
                 </form>
               </CardContent>
@@ -305,8 +306,8 @@ export default function Auth() {
           </Tabs>
         </Card>
 
-        <p className="text-center text-sm text-muted-foreground mt-6">
-          By signing up, you agree to our Terms of Service and Privacy Policy
+        <p className="text-center text-sm text-muted-foreground mt-6 arabic-text">
+          بإنشاء حساب، فإنك توافق على شروط الخدمة وسياسة الخصوصية
         </p>
       </div>
     </div>
