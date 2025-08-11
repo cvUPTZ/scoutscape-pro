@@ -3,6 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Target, TrendingUp, Award, Search, BarChart3 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 export default function Dashboard() {
   const { user, signOut } = useAuth();
@@ -46,7 +47,9 @@ export default function Dashboard() {
               <p className="text-muted-foreground arabic-text mb-4">
                 عرض وإدارة ملفات اللاعبين والمواهب المكتشفة
               </p>
-              <Button className="w-full">عرض اللاعبين</Button>
+              <Link to="/players" className="w-full">
+                <Button className="w-full">عرض اللاعبين</Button>
+              </Link>
             </CardContent>
           </Card>
 
@@ -61,7 +64,9 @@ export default function Dashboard() {
               <p className="text-muted-foreground arabic-text mb-4">
                 إنشاء ومراجعة تقارير الكشافة والتقييمات
               </p>
-              <Button className="w-full">إدارة التقارير</Button>
+              <Link to="/reports" className="w-full">
+                <Button className="w-full">إدارة التقارير</Button>
+              </Link>
             </CardContent>
           </Card>
 
@@ -76,7 +81,9 @@ export default function Dashboard() {
               <p className="text-muted-foreground arabic-text mb-4">
                 تحليل الأداء والإحصائيات الشاملة
               </p>
-              <Button className="w-full">عرض الإحصائيات</Button>
+              <Link to="/statistics" className="w-full">
+                <Button className="w-full">عرض الإحصائيات</Button>
+              </Link>
             </CardContent>
           </Card>
         </div>
