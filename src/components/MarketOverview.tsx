@@ -2,18 +2,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, TrendingDown, DollarSign, Users, Target, Award } from "lucide-react";
+import { usePlayers, usePlayerValuations } from "@/hooks/usePlayers";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 const MarketOverview = () => {
+  const { data: players, isLoading: isLoadingPlayers, error: errorPlayers } = usePlayers();
+  // In a real app, you would probably have a separate query for valuations
+  // and then merge the data. For simplicity, I'm fetching all valuations here.
+  // This is not efficient and should be improved.
+  const { data: valuations, isLoading: isLoadingValuations, error: errorValuations } = usePlayerValuations();
+
   // بيانات اتجاهات السوق
-  const marketTrends = [
-    { month: 'يناير', value: 12.5, transfers: 45 },
-    { month: 'فبراير', value: 13.2, transfers: 52 },
-    { month: 'مارس', value: 15.1, transfers: 67 },
-    { month: 'أبريل', value: 14.8, transfers: 61 },
-    { month: 'مايو', value: 16.3, transfers: 78 },
-    { month: 'يونيو', value: 18.7, transfers: 92 },
-  ];
+  const marketTrends = valuations ? valuations.map(v => ({ month: new Date(v.valuation_date).toLocaleString('default', { month: 'long' }), value: v.market_value / 1000000, transfers: 0 })) : [];
 
   // توزيع القيم حسب المراكز
   const positionValues = [
@@ -24,43 +24,38 @@ const MarketOverview = () => {
   ];
 
   // أفضل اللاعبين في السوق
-  const hotPlayers = [
-    { name: 'آدم مدور', position: 'جناح أيسر', value: 250000, change: 15.2, trend: 'up' },
-    { name: 'مصطفى فقيه', position: 'رأس حربة', value: 180000, change: 22.1, trend: 'up' },
-    { name: 'كريم بوشمة', position: 'جناح أيمن', value: 300000, change: 18.7, trend: 'up' },
-    { name: 'أمين زروق', position: 'مدافع أيمن', value: 150000, change: -5.3, trend: 'down' },
-  ];
+  const hotPlayers = players?.slice(0, 4).map(p => ({ name: p.name, position: p.position, value: p.player_valuations?.[0]?.market_value || 0, change: 0, trend: 'up' })) || [];
 
   // إحصائيات السوق
   const marketStats = [
     {
       title: "إجمالي القيمة السوقية",
-      value: "€24.8م",
-      change: "+12.5%",
+      value: `€${((players?.reduce((acc, p) => acc + (p.player_valuations?.[0]?.market_value || 0), 0) || 0) / 1000000).toFixed(1)}م`,
+      change: "+0%",
       trend: "up",
       icon: DollarSign,
       color: "text-green-600"
     },
     {
       title: "اللاعبون النشطون",
-      value: "2,847",
-      change: "+156",
+      value: players?.length || 0,
+      change: "+0",
       trend: "up",
       icon: Users,
       color: "text-blue-600"
     },
     {
       title: "المواهب الواعدة",
-      value: "142",
-      change: "+23",
+      value: 0, // This needs to be calculated
+      change: "+0",
       trend: "up",
       icon: Target,
       color: "text-purple-600"
     },
     {
       title: "الأعلى تقييماً",
-      value: "89",
-      change: "+8",
+      value: 0, // This needs to be calculated
+      change: "+0",
       trend: "up",
       icon: Award,
       color: "text-yellow-600"

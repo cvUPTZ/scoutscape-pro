@@ -9,25 +9,7 @@ export default function Dashboard() {
   const { user, signOut } = useAuth();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-accent/10" dir="rtl">
-      <header className="border-b bg-white/80 backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-reverse space-x-2">
-            <Target className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-primary">سكاوت الجزائر</h1>
-          </div>
-          <div className="flex items-center space-x-reverse space-x-4">
-            <span className="text-sm text-muted-foreground arabic-text">
-              مرحباً، {user?.email}
-            </span>
-            <Button onClick={signOut} variant="outline">
-              تسجيل الخروج
-            </Button>
-          </div>
-        </div>
-      </header>
-
-      <main className="container mx-auto px-4 py-8">
+    <>
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold mb-4 arabic-text">لوحة التحكم الرئيسية</h2>
           <p className="text-muted-foreground arabic-text">
@@ -87,7 +69,6 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         </div>
-      </main>
-    </div>
+    </>
   );
 }

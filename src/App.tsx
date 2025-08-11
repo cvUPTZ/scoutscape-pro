@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -12,6 +11,11 @@ import Dashboard from "./pages/Dashboard";
 import Players from "./pages/Players";
 import Reports from "./pages/Reports";
 import Statistics from "./pages/Statistics";
+import PlayerProfile from "./pages/PlayerProfile";
+import Admin from "./pages/Admin";
+import Messages from "./pages/Messages";
+import Connections from "./pages/Connections";
+import Layout from "./components/Layout";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useSupabaseRealtime } from "@/hooks/useRealtime";
 
@@ -27,6 +31,12 @@ function PublicRoute({ children }: { children: JSX.Element }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
   return !user ? children : <Navigate to="/dashboard" replace />;
+}
+
+function AdminRoute({ children }: { children: JSX.Element }) {
+  const { user, role, loading } = useAuth();
+  if (loading) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+  return user && role === 'admin' ? children : <Navigate to="/dashboard" replace />;
 }
 
 function RealtimeWrapper({ children }: { children: React.ReactNode }) {
@@ -54,10 +64,14 @@ const App = () => {
               <Routes>
                 <Route path="/" element={<PublicRoute><Index /></PublicRoute>} />
                 <Route path="/auth" element={<PublicRoute><Auth /></PublicRoute>} />
-                <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-                <Route path="/players" element={<ProtectedRoute><Players /></ProtectedRoute>} />
-                <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
-                <Route path="/statistics" element={<ProtectedRoute><Statistics /></ProtectedRoute>} />
+                <Route path="/dashboard" element={<ProtectedRoute><Layout><Dashboard /></Layout></ProtectedRoute>} />
+                <Route path="/players" element={<ProtectedRoute><Layout><Players /></Layout></ProtectedRoute>} />
+                <Route path="/reports" element={<ProtectedRoute><Layout><Reports /></Layout></ProtectedRoute>} />
+                <Route path="/statistics" element={<ProtectedRoute><Layout><Statistics /></Layout></ProtectedRoute>} />
+                <Route path="/player/:id" element={<ProtectedRoute><Layout><PlayerProfile /></Layout></ProtectedRoute>} />
+                <Route path="/admin" element={<AdminRoute><Layout><Admin /></Layout></AdminRoute>} />
+                <Route path="/messages" element={<ProtectedRoute><Layout><Messages /></Layout></ProtectedRoute>} />
+                <Route path="/connections" element={<ProtectedRoute><Layout><Connections /></Layout></ProtectedRoute>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>

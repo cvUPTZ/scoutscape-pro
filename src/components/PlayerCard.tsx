@@ -11,6 +11,7 @@ import {
   Edit,
   Trash2
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Player } from "@/types";
 import { dbService } from "@/utils/dbService";
 
@@ -18,12 +19,11 @@ interface PlayerCardProps {
   player: Player;
   currency: string;
   showCurrency: boolean;
-  onViewDetails: (player: Player) => void;
   onEdit: (player: Player) => void;
   onDelete: (id: number) => void;
 }
 
-const PlayerCard = ({ player, currency, showCurrency, onViewDetails, onEdit, onDelete }: PlayerCardProps) => {
+const PlayerCard = ({ player, currency, showCurrency, onEdit, onDelete }: PlayerCardProps) => {
 
   const formatCurrency = (value: number) => {
     if (!showCurrency) return 'مخفية';
@@ -166,14 +166,15 @@ const PlayerCard = ({ player, currency, showCurrency, onViewDetails, onEdit, onD
         </div>
 
         <div className="flex gap-2 mt-auto">
-          <Button 
-            className="w-full"
-            variant="outline"
-            onClick={() => onViewDetails(player)}
-          >
-            <Eye className="w-4 h-4 ml-2" />
-            عرض
-          </Button>
+          <Link to={`/player/${player.id}`} className="w-full">
+            <Button
+              className="w-full"
+              variant="outline"
+            >
+              <Eye className="w-4 h-4 ml-2" />
+              عرض
+            </Button>
+          </Link>
           <Button
             className="w-full"
             variant="secondary"

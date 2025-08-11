@@ -5,6 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useState } from "react";
+import { usePlayers } from "@/hooks/usePlayers";
+import { useReports, useCreateReport } from "@/hooks/useReports";
+import { toast } from "sonner";
 import {
   Calendar,
   MapPin,
@@ -54,76 +57,24 @@ interface PlayerRating {
 }
 
 const ScoutDashboard = () => {
-  const [watchingMatches, setWatchingMatches] = useState<number[]>([]);
   const [activeWatchInterface, setActiveWatchInterface] = useState<Match | null>(null);
   const [playerRatings, setPlayerRatings] = useState<PlayerRating[]>([]);
 
-  const upcomingMatches: Match[] = [
-    {
-      id: 1,
-      homeTeam: "اتحاد مواهب سطيف",
-      awayTeam: "شباب ساورة",
-      date: "2024-08-15",
-      time: "19:00",
-      venue: "ملعب 8 مايو 1945",
-      playersToWatch: ["آدم مدور", "زكرياء سمارة"]
-    },
-    {
-      id: 2,
-      homeTeam: "أكاديمية بارادو",
-      awayTeam: "مولودية الجزائر",
-      date: "2024-08-16",
-      time: "16:00",
-      venue: "ملعب عمر بن ربح",
-      playersToWatch: ["مصطفى فقيه"]
-    },
-    {
-      id: 3,
-      homeTeam: "نصر حسين داي",
-      awayTeam: "وفاق سطيف",
-      date: "2024-08-17",
-      time: "18:30",
-      venue: "ملعب 20 أوت 1955",
-      playersToWatch: ["إسماعيل حلام", "وائل شويط"]
-    }
-  ];
+  const { data: players, isLoading: isLoadingPlayers, error: errorPlayers } = usePlayers();
+  const createReport = useCreateReport();
+  const { data: reports, isLoading: isLoadingReports, error: errorReports } = useReports();
 
-  const recentReports = [
-    {
-      player: "آدم مدور",
-      rating: 8.5,
-      status: "مكتمل",
-      date: "2024-08-10",
-      highlights: "مراوغة ممتازة، تمريرات إبداعية، يحتاج تحسين المساهمة الدفاعية"
-    },
-    {
-      player: "عمر ميدون",
-      rating: 8.2,
-      status: "مكتمل",
-      date: "2024-08-09",
-      highlights: "لمسة نهائية سريرية، تموضع جيد، حضور بدني قوي"
-    },
-    {
-      player: "ياسر عرفات لطروش",
-      rating: 7.8,
-      status: "قيد المراجعة",
-      date: "2024-08-08",
-      highlights: "جناح سريع مع قدرة جيدة على العرضيات"
-    }
-  ];
+  const upcomingMatches: Match[] = []; // This should be fetched from a different source, maybe a new table `matches`
 
-  const watchlistPlayers = [
-    { name: "فارس بوخطالية", position: "صانع ألعاب", club: "رائد القبة", age: 16, priority: "عالية" },
-    { name: "هشام قراحلي", position: "صانع ألعاب", club: "اتحاد الخميس", age: 18, priority: "متوسطة" },
-    { name: "وليد غدبان", position: "جناح أيمن", club: "مولودية باتنة", age: 17, priority: "عالية" },
-    { name: "رياض بورسالي", position: "جناح أيمن", club: "اتحاد الجزائر", age: 19, priority: "منخفضة" }
-  ];
+  const recentReports = reports?.slice(0, 3) || [];
+
+  const watchlistPlayers = players?.slice(0, 4) || [];
 
   const stats = [
-    { title: "المباريات المُراقبة", value: 47, icon: Eye, color: "text-blue-600" },
-    { title: "التقارير المكتملة", value: 23, icon: CheckCircle, color: "text-green-600" },
-    { title: "اللاعبون المتتبعون", value: 89, icon: Users, color: "text-purple-600" },
-    { title: "التوصيات", value: 12, icon: Target, color: "text-yellow-600" }
+    { title: "المباريات المُراقبة", value: reports?.length || 0, icon: Eye, color: "text-blue-600" },
+    { title: "التقارير المكتملة", value: reports?.filter(r => r.status === 'completed').length || 0, icon: CheckCircle, color: "text-green-600" },
+    { title: "اللاعبون المتتبعون", value: players?.length || 0, icon: Users, color: "text-purple-600" },
+    { title: "التوصيات", value: 0, icon: Target, color: "text-yellow-600" } // This needs to be calculated
   ];
 
   const handleWatchMatch = (match: Match) => {
@@ -151,15 +102,27 @@ const ScoutDashboard = () => {
     ));
   };
 
-  const saveWatchReport = () => {
-    console.log('تم حفظ تقرير المراقبة:', {
-      match: activeWatchInterface,
-      ratings: playerRatings
-    });
-    
-    // Here you would typically save to database or state management
-    alert('تم حفظ التقرير بنجاح!');
-    setActiveWatchInterface(null);
+  const saveWatchReport = async () => {
+    if (!activeWatchInterface) return;
+
+    try {
+      // This is a simplified version. In a real app, you would have a more complex
+      // mapping from a "match" to a "report".
+      await createReport.mutateAsync({
+        player_name: playerRatings.map(p => p.playerName).join(', '),
+        match_info: `${activeWatchInterface.homeTeam} vs ${activeWatchInterface.awayTeam}`,
+        status: 'completed',
+      });
+
+      // You would also save the detailed player ratings here.
+      // This would likely involve another mutation and table.
+
+      toast.success('تم حفظ التقرير بنجاح!');
+      setActiveWatchInterface(null);
+    } catch (error) {
+      console.error('Error saving report:', error);
+      toast.error('حدث خطأ في حفظ التقرير');
+    }
   };
 
   const closeWatchInterface = () => {
