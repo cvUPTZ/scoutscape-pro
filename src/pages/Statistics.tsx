@@ -5,15 +5,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Statistics() {
     const { data: players, isLoading, error } = usePlayers();
-
+    
     if (isLoading) {
         return <div>Loading...</div>;
     }
-
+    
     if (error) {
         return <div>Error loading data</div>;
     }
-
+    
     return (
         <Tabs defaultValue="market-overview" className="w-full">
             <TabsList className="grid w-full grid-cols-2">
