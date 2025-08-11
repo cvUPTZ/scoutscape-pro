@@ -1,219 +1,229 @@
 
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2, Plus } from "lucide-react";
-import { Player } from "@/types";
-import PlayerForm from "@/components/PlayerForm";
-import AddReportForm from "@/components/AddReportForm";
-import { useReports } from "@/hooks/useReports";
+import React, { useState } from 'react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Player } from '@/types';
+import { Edit, MapPin, Phone, Calendar, Trophy, Target, Activity } from 'lucide-react';
+import PlayerForm from './PlayerForm';
 
 interface PlayerDetailModalProps {
   player: Player | null;
   isOpen: boolean;
   onClose: () => void;
-  onPlayerUpdated?: () => void;
-  currency: string;
-  showCurrency: boolean;
-  addMode?: boolean;
+  onPlayerUpdated: () => void;
 }
 
-export default function PlayerDetailModal({
-  player,
-  isOpen,
-  onClose,
-  onPlayerUpdated,
-  currency,
-  showCurrency,
-  addMode = false,
-}: PlayerDetailModalProps) {
-  const [showForm, setShowForm] = useState(addMode);
-  const { data: reports = [] } = useReports(player?.id);
+const PlayerDetailModal: React.FC<PlayerDetailModalProps> = ({ 
+  player, 
+  isOpen, 
+  onClose, 
+  onPlayerUpdated 
+}) => {
+  const [isEditing, setIsEditing] = useState(false);
 
-  const handlePlayerSaved = () => {
-    setShowForm(false);
-    if (onPlayerUpdated) {
-      onPlayerUpdated();
-    }
-    if (addMode) {
-      onClose();
-    }
+  if (!player) return null;
+
+  const handleEdit = () => {
+    setIsEditing(true);
   };
 
-  if (!player && !addMode) return null;
+  const handlePlayerSaved = () => {
+    setIsEditing(false);
+    onPlayerUpdated();
+  };
+
+  const handleCancel = () => {
+    setIsEditing(false);
+  };
+
+  if (isEditing) {
+    return (
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <PlayerForm 
+            player={player}
+            onPlayerSaved={handlePlayerSaved}
+            onCancel={handleCancel}
+          />
+        </DialogContent>
+      </Dialog>
+    );
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle>
-            {addMode ? "إضافة لاعب جديد" : player?.name}
-          </DialogTitle>
+          <div className="flex justify-between items-center">
+            <DialogTitle className="text-2xl arabic-text">{player.name}</DialogTitle>
+            <Button onClick={handleEdit} variant="outline" size="sm">
+              <Edit className="h-4 w-4 ml-2" />
+              تعديل
+            </Button>
+          </div>
         </DialogHeader>
 
-        {showForm ? (
-          <PlayerForm
-            player={addMode ? undefined : player}
-            onPlayerSaved={handlePlayerSaved}
-            onCancel={() => {
-              setShowForm(false);
-              if (addMode) onClose();
-            }}
-          />
-        ) : (
-          player && (
-            <div className="space-y-6">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <h2 className="text-2xl font-bold">{player.name}</h2>
-                  <div className="flex gap-2">
-                    <Badge variant="secondary">{player.position}</Badge>
-                    <Badge variant="outline">{player.age} سنة</Badge>
-                    <Badge variant="outline">{player.club}</Badge>
+        <div className="space-y-6">
+          {/* Basic Info */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground arabic-text">
+                  معلومات أساسية
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div className="flex items-center space-x-reverse space-x-2">
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <span className="arabic-text">{player.age} سنة</span>
+                </div>
+                <div className="flex items-center space-x-reverse space-x-2">
+                  <Target className="h-4 w-4 text-muted-foreground" />
+                  <Badge variant="secondary" className="arabic-text">{player.position}</Badge>
+                </div>
+                <div className="flex items-center space-x-reverse space-x-2">
+                  <MapPin className="h-4 w-4 text-muted-foreground" />
+                  <span className="arabic-text">{player.location}</span>
+                </div>
+                {player.phone && (
+                  <div className="flex items-center space-x-reverse space-x-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <span>{player.phone}</span>
                   </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground arabic-text">
+                  النادي والحالة
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div>
+                  <p className="font-medium arabic-text">{player.club}</p>
+                  <Badge variant={player.status === 'active' ? 'default' : 'secondary'} className="arabic-text">
+                    {player.status === 'active' ? 'نشط' : 'غير نشط'}
+                  </Badge>
                 </div>
-                <div className="flex gap-2">
-                  <Button onClick={() => setShowForm(true)}>
-                    تعديل
-                  </Button>
+                {player.contract_until && (
+                  <div>
+                    <p className="text-sm text-muted-foreground arabic-text">انتهاء العقد</p>
+                    <p className="font-medium">{player.contract_until}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground arabic-text">
+                  المواصفات الجسدية
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                <div>
+                  <p className="text-sm text-muted-foreground arabic-text">الطول</p>
+                  <p className="font-medium">{player.height}</p>
                 </div>
+                <div>
+                  <p className="text-sm text-muted-foreground arabic-text">الوزن</p>
+                  <p className="font-medium">{player.weight}</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          <Tabs defaultValue="stats" className="w-full">
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="stats" className="arabic-text">الإحصائيات</TabsTrigger>
+              <TabsTrigger value="metrics" className="arabic-text">التقييمات</TabsTrigger>
+              <TabsTrigger value="notes" className="arabic-text">الملاحظات</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="stats" className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="pt-6 text-center">
+                    <div className="text-2xl font-bold text-green-600">{player.goals}</div>
+                    <p className="text-sm text-muted-foreground arabic-text">أهداف</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6 text-center">
+                    <div className="text-2xl font-bold text-blue-600">{player.assists}</div>
+                    <p className="text-sm text-muted-foreground arabic-text">تمريرات حاسمة</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6 text-center">
+                    <div className="text-2xl font-bold text-purple-600">{player.appearances}</div>
+                    <p className="text-sm text-muted-foreground arabic-text">مشاركات</p>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6 text-center">
+                    <div className="text-2xl font-bold text-red-600">
+                      {player.yellow_cards + player.red_cards}
+                    </div>
+                    <p className="text-sm text-muted-foreground arabic-text">بطاقات</p>
+                  </CardContent>
+                </Card>
               </div>
-
-              <Tabs defaultValue="overview" className="w-full">
-                <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
-                  <TabsTrigger value="reports">التقارير</TabsTrigger>
-                  <TabsTrigger value="stats">الإحصائيات</TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="overview" className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>المعلومات الأساسية</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <div className="flex justify-between">
-                          <span>الاسم:</span>
-                          <span className="font-medium">{player.name}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>العمر:</span>
-                          <span className="font-medium">{player.age} سنة</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>المركز:</span>
-                          <span className="font-medium">{player.position}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>النادي:</span>
-                          <span className="font-medium">{player.club}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>التقييم:</span>
-                          <span className="font-medium">{player.rating}/10</span>
-                        </div>
-                        {showCurrency && (
-                          <div className="flex justify-between">
-                            <span>القيمة السوقية:</span>
-                            <span className="font-medium">
-                              {player.market_value.toLocaleString()} {currency}
-                            </span>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>تفاصيل إضافية</CardTitle>
-                      </CardHeader>
-                      <CardContent className="space-y-2">
-                        <div className="flex justify-between">
-                          <span>الطول:</span>
-                          <span className="font-medium">{player.height} سم</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>الوزن:</span>
-                          <span className="font-medium">{player.weight} كغ</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>القدم المفضلة:</span>
-                          <span className="font-medium">{player.preferred_foot}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>الجنسية:</span>
-                          <span className="font-medium">{player.nationality}</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-
-                  {player.notes && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>الملاحظات</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-700">{player.notes}</p>
-                      </CardContent>
-                    </Card>
-                  )}
-                </TabsContent>
-
-                <TabsContent value="reports" className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-semibold">التقارير</h3>
-                    <Button className="gap-2">
-                      <Plus className="w-4 h-4" />
-                      إضافة تقرير
-                    </Button>
-                  </div>
-
-                  <div className="space-y-4">
-                    {Array.isArray(reports) && reports.map((report: any) => (
-                      <Card key={report.id}>
-                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                          <CardTitle className="text-sm font-medium">
-                            {report.match_date ? new Date(report.match_date).toLocaleDateString('ar-SA') : 'تاريخ غير محدد'}
-                          </CardTitle>
-                          <Button variant="ghost" size="sm">
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </CardHeader>
-                        <CardContent>
-                          <p className="text-sm text-gray-600">{report.notes || 'لا توجد ملاحظات'}</p>
-                        </CardContent>
-                      </Card>
-                    ))}
-                    {(!Array.isArray(reports) || reports.length === 0) && (
-                      <p className="text-center text-gray-500 py-8">
-                        لا توجد تقارير لهذا اللاعب بعد
-                      </p>
-                    )}
-                  </div>
-                </TabsContent>
-
-                <TabsContent value="stats" className="space-y-4">
-                  <Card>
-                    <CardHeader>
-                      <CardTitle>الإحصائيات</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <p className="text-center text-gray-500 py-8">
-                        سيتم إضافة الإحصائيات قريباً
-                      </p>
+            </TabsContent>
+            
+            <TabsContent value="metrics" className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {player.metrics && Object.entries(player.metrics).map(([key, value]) => (
+                  <Card key={key}>
+                    <CardContent className="pt-6">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm font-medium arabic-text">
+                          {key === 'speed' && 'السرعة'}
+                          {key === 'agility' && 'الرشاقة'}
+                          {key === 'stamina' && 'التحمل'}
+                          {key === 'strength' && 'القوة'}
+                          {key === 'technique' && 'التقنية'}
+                          {key === 'passing' && 'التمرير'}
+                          {key === 'shooting' && 'التسديد'}
+                          {key === 'defending' && 'الدفاع'}
+                          {key === 'mental' && 'الذهني'}
+                        </span>
+                        <span className="text-lg font-bold">{value}/10</span>
+                      </div>
+                      <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                        <div 
+                          className="bg-primary h-2 rounded-full" 
+                          style={{ width: `${(value / 10) * 100}%` }}
+                        ></div>
+                      </div>
                     </CardContent>
                   </Card>
-                </TabsContent>
-              </Tabs>
-            </div>
-          )
-        )}
+                ))}
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="notes">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="arabic-text">ملاحظات إضافية</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-muted-foreground arabic-text">
+                    {player.notes || 'لا توجد ملاحظات إضافية'}
+                  </p>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </div>
       </DialogContent>
     </Dialog>
   );
-}
+};
+
+export default PlayerDetailModal;
