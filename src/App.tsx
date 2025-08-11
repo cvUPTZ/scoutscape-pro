@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboard";
 import Players from "./pages/Players";
 import Reports from "./pages/Reports";
 import Statistics from "./pages/Statistics";
+import PlayerProfile from "./pages/PlayerProfile";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { useSupabaseRealtime } from "@/hooks/useRealtime";
 
@@ -58,6 +59,7 @@ const App = () => {
                 <Route path="/players" element={<ProtectedRoute><Players /></ProtectedRoute>} />
                 <Route path="/reports" element={<ProtectedRoute><Reports /></ProtectedRoute>} />
                 <Route path="/statistics" element={<ProtectedRoute><Statistics /></ProtectedRoute>} />
+                <Route path="/player/:id" element={<ProtectedRoute><PlayerProfile /></ProtectedRoute>} />
                 {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
                 <Route path="*" element={<NotFound />} />
               </Routes>
