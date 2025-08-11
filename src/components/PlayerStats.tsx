@@ -1,6 +1,8 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend } from 'recharts';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Player {
   id: number;
@@ -21,6 +23,8 @@ interface PlayerStatsProps {
 }
 
 const PlayerStats = ({ players }: PlayerStatsProps) => {
+  const [playerA, setPlayerA] = useState<Player | null>(players[0] || null);
+  const [playerB, setPlayerB] = useState<Player | null>(players[1] || null);
   // تحضير بيانات توزيع الأعمار
   const ageDistribution = players.reduce((acc: { [key: string]: number }, player) => {
     const ageGroup = `${Math.floor(player.age / 2) * 2}-${Math.floor(player.age / 2) * 2 + 1}`;
@@ -53,14 +57,14 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
   }));
 
   // بيانات مقارنة اللاعبين
-  const radarData = [
-    { attribute: 'السرعة', playerA: 88, playerB: 84, fullMark: 100 },
-    { attribute: 'التسديد', playerA: 82, playerB: 91, fullMark: 100 },
-    { attribute: 'التمرير', playerA: 85, playerB: 70, fullMark: 100 },
-    { attribute: 'المراوغة', playerA: 90, playerB: 82, fullMark: 100 },
-    { attribute: 'الدفاع', playerA: 45, playerB: 35, fullMark: 100 },
-    { attribute: 'القوة البدنية', playerA: 78, playerB: 85, fullMark: 100 }
-  ];
+  const radarData = playerA && playerB ? [
+    { attribute: 'السرعة', playerA: playerA.metrics.speed, playerB: playerB.metrics.speed, fullMark: 100 },
+    { attribute: 'التسديد', playerA: playerA.metrics.shooting, playerB: playerB.metrics.shooting, fullMark: 100 },
+    { attribute: 'التمرير', playerA: playerA.metrics.passing, playerB: playerB.metrics.passing, fullMark: 100 },
+    { attribute: 'المراوغة', playerA: playerA.metrics.dribbling, playerB: playerB.metrics.dribbling, fullMark: 100 },
+    { attribute: 'الدفاع', playerA: playerA.metrics.defense, playerB: playerB.metrics.defense, fullMark: 100 },
+    { attribute: 'القوة البدنية', playerA: playerA.metrics.physical, playerB: playerB.metrics.physical, fullMark: 100 }
+  ] : [];
 
   // إحصائيات متقدمة
   const advancedStats = [
@@ -191,6 +195,24 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
           <CardTitle className="text-gradient-primary text-right">مقارنة اللاعبين</CardTitle>
         </CardHeader>
         <CardContent>
+          <div className="flex justify-center gap-4 mb-4">
+            <Select onValueChange={(value) => setPlayerA(players.find(p => p.id === Number(value)) || null)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select Player A" />
+              </SelectTrigger>
+              <SelectContent>
+                {players.map(p => <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+            <Select onValueChange={(value) => setPlayerB(players.find(p => p.id === Number(value)) || null)}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Select Player B" />
+              </SelectTrigger>
+              <SelectContent>
+                {players.map(p => <SelectItem key={p.id} value={String(p.id)}>{p.name}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
           <ResponsiveContainer width="100%" height={400}>
             <RadarChart data={radarData}>
               <PolarGrid stroke="#e2e8f0" />
@@ -200,22 +222,26 @@ const PlayerStats = ({ players }: PlayerStatsProps) => {
                 domain={[0, 100]} 
                 tick={{ fill: '#64748b', fontSize: 10 }} 
               />
-              <Radar
-                name="آدم مدور"
-                dataKey="playerA"
-                stroke="#3b82f6"
-                fill="#3b82f6"
-                fillOpacity={0.2}
-                strokeWidth={2}
-              />
-              <Radar
-                name="مصطفى فقيه"
-                dataKey="playerB"
-                stroke="#10b981"
-                fill="#10b981"
-                fillOpacity={0.2}
-                strokeWidth={2}
-              />
+              {playerA && (
+                <Radar
+                  name={playerA.name}
+                  dataKey="playerA"
+                  stroke="#3b82f6"
+                  fill="#3b82f6"
+                  fillOpacity={0.2}
+                  strokeWidth={2}
+                />
+              )}
+              {playerB && (
+                <Radar
+                  name={playerB.name}
+                  dataKey="playerB"
+                  stroke="#10b981"
+                  fill="#10b981"
+                  fillOpacity={0.2}
+                  strokeWidth={2}
+                />
+              )}
               <Legend 
                 wrapperStyle={{ 
                   paddingTop: '20px',

@@ -173,3 +173,17 @@ export const deletePlayer = async (id: number) => {
     if (error) throw error;
     return id;
 }
+
+export const getPlayerVideoSegments = async (playerId: number) => {
+    const { data, error } = await supabase
+        .from('video_segments')
+        .select('*')
+        .eq('player_id', playerId);
+
+    if (error) {
+        console.error('Error fetching player video segments:', error);
+        throw new Error(error.message);
+    }
+
+    return data;
+}

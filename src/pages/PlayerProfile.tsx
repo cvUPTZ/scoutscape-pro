@@ -4,11 +4,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Award, BarChart2, Calendar, DollarSign, Shield, Star, Users } from 'lucide-react';
+import { Award, BarChart2, Calendar, DollarSign, Shield, Star, Users, Video } from 'lucide-react';
+import VideoSegments from '@/components/VideoSegments';
+import { usePlayerVideoSegments } from '@/hooks/useReports';
 
 const PlayerProfile = () => {
     const { id } = useParams<{ id: string }>();
     const { data: player, isLoading, error } = usePlayer(Number(id));
+    const { data: segments } = usePlayerVideoSegments(Number(id));
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -109,6 +112,18 @@ const PlayerProfile = () => {
                     </CardContent>
                 </Card>
             </div>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center">
+                        <Video className="mr-2" />
+                        Video Segments
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <VideoSegments segments={segments || []} />
+                </CardContent>
+            </Card>
         </div>
     );
 };

@@ -20,6 +20,14 @@ export const useCreateReport = () => {
   });
 };
 
+export const usePlayerVideoSegments = (playerId?: number) => {
+    return useQuery({
+        queryKey: ['video_segments', 'player', playerId],
+        queryFn: () => getPlayerVideoSegments(playerId as number),
+        enabled: !!playerId,
+    });
+}
+
 export const useVideoSegments = (reportId?: string) => {
   return useQuery({
     queryKey: ['video_segments', reportId],
