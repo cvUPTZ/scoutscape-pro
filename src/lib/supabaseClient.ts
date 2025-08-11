@@ -1,6 +1,14 @@
+
 import { createClient } from '@supabase/supabase-js';
+import type { Database } from '@/integrations/supabase/types';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+const SUPABASE_URL = "https://hdzkcriacphasvjablqk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhkemtjcmlhY3BoYXN2amFibHFrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ4MDExMzksImV4cCI6MjA3MDM3NzEzOX0.-ZXGZyxr5TmYLUPd4RrxVCCojN7dk9i1w1AGXciC-OQ";
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  auth: {
+    storage: localStorage,
+    persistSession: true,
+    autoRefreshToken: true,
+  }
+});

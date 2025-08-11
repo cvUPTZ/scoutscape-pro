@@ -1,3 +1,4 @@
+
 import { useState, useMemo } from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -63,12 +64,15 @@ const Index = () => {
     setIsPlayerDetailModalOpen(false);
   };
 
-  const filteredPlayers = useMemo(() => players.filter((player) => {
-    const searchRegex = new RegExp(searchTerm, "i");
-    const positionMatch =
-      filterPosition === "الكل" || player.position === filterPosition;
-    return (searchRegex.test(player.name) || searchRegex.test(player.club)) && positionMatch;
-  }), [players, searchTerm, filterPosition]);
+  const filteredPlayers = useMemo(() => {
+    const playersArray = Array.isArray(players) ? players : [];
+    return playersArray.filter((player) => {
+      const searchRegex = new RegExp(searchTerm, "i");
+      const positionMatch =
+        filterPosition === "الكل" || player.position === filterPosition;
+      return (searchRegex.test(player.name) || searchRegex.test(player.club)) && positionMatch;
+    });
+  }, [players, searchTerm, filterPosition]);
 
   const sortedPlayers = useMemo(() => [...filteredPlayers].sort((a, b) => {
     let comparison = 0;
@@ -91,7 +95,10 @@ const Index = () => {
     return sortOrder === "asc" ? comparison : -comparison;
   }), [filteredPlayers, sortOption, sortOrder]);
 
-  const playerPositions = useMemo(() => ["الكل", ...new Set(players.map((player) => player.position))], [players]);
+  const playerPositions = useMemo(() => {
+    const playersArray = Array.isArray(players) ? players : [];
+    return ["الكل", ...new Set(playersArray.map((player) => player.position))];
+  }, [players]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -223,15 +230,15 @@ const Index = () => {
           </TabsContent>
 
           <TabsContent value="watch" className="space-y-6">
-            <WatchPage players={players} />
+            <WatchPage players={Array.isArray(players) ? players : []} />
           </TabsContent>
 
           <TabsContent value="stats" className="space-y-6">
-            <PlayerStats players={players} />
+            <PlayerStats players={Array.isArray(players) ? players : []} />
           </TabsContent>
 
           <TabsContent value="settings" className="space-y-6">
-            <AdminSettings />
+            <AdminSettings onSettingsChange={() => {}} />
           </TabsContent>
         </Tabs>
 

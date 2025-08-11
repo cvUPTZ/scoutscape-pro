@@ -1,152 +1,219 @@
+
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import VideoSegments from './VideoSegments';
-import AddReportForm from './AddReportForm';
-import PlayerForm from './PlayerForm';
-import { dbService } from '@/utils/dbService';
-import { Player } from '@/types';
-import { useReports } from '@/hooks/useReports';
-import { useDeletePlayer } from '@/hooks/usePlayers';
-import { useQueryClient } from '@tanstack/react-query';
-import { 
-  MapPin, 
-  Calendar, 
-  Star, 
-  User,
-  TrendingUp,
-  Trophy,
-  Target,
-  AlertTriangle,
-  X,
-  Edit
-} from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Trash2, Plus } from "lucide-react";
+import { Player } from "@/types";
+import PlayerForm from "@/components/PlayerForm";
+import AddReportForm from "@/components/AddReportForm";
+import { useReports } from "@/hooks/useReports";
 
 interface PlayerDetailModalProps {
   player: Player | null;
   isOpen: boolean;
   onClose: () => void;
+  onPlayerUpdated?: () => void;
   currency: string;
   showCurrency: boolean;
-  onPlayerUpdated?: () => void;
   addMode?: boolean;
 }
 
-const PlayerDetailModal = ({ player, isOpen, onClose, currency, showCurrency, onPlayerUpdated, addMode = false }: PlayerDetailModalProps) => {
-  const playerId = player?.id;
-  const { data: reports = [], isLoading: reportsLoading } = useReports(playerId);
-  const [showReportForm, setShowReportForm] = useState(false);
-  const [isEditing, setIsEditing] = useState(addMode);
-  const queryClient = useQueryClient();
-  const deleteMutation = useDeletePlayer();
-
-  if (!player && !addMode) return null;
-
-  const handleDeletePlayer = () => {
-    if (!player) return;
-    if (!window.confirm("هل أنت متأكد من حذف هذا اللاعب؟")) return;
-    deleteMutation.mutate(player.id);
-    onPlayerUpdated?.();
-    onClose?.();
-  };
+export default function PlayerDetailModal({
+  player,
+  isOpen,
+  onClose,
+  onPlayerUpdated,
+  currency,
+  showCurrency,
+  addMode = false,
+}: PlayerDetailModalProps) {
+  const [showForm, setShowForm] = useState(addMode);
+  const { data: reports = [] } = useReports(player?.id);
 
   const handlePlayerSaved = () => {
-    queryClient.invalidateQueries({ queryKey: ['players'] });
-    setIsEditing(false);
-    onPlayerUpdated?.();
+    setShowForm(false);
+    if (onPlayerUpdated) {
+      onPlayerUpdated();
+    }
     if (addMode) {
       onClose();
     }
   };
 
-  const formatCurrency = (value: number) => {
-    if (!showCurrency) return 'مخفية';
-    const symbol = currency === 'USD' ? '$' : currency === 'EUR' ? '€' : currency === 'DZD' ? 'دج' : currency;
-    if (value >= 1000000) return `${symbol}${(value / 1000000).toFixed(1)}م`;
-    return `${symbol}${(value / 1000).toFixed(0)}ألف`;
-  };
-
-  const getPositionColor = (position: string) => {
-    if (!position) return '';
-    if (position.includes('GK') || position.includes('حارس')) return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-    if (position.includes('DF') || position.includes('CB') || position.includes('LB') || position.includes('RB') || position.includes('مدافع') || position.includes('ظهير')) return 'bg-blue-100 text-blue-800 border-blue-200';
-    if (position.includes('MF') || position.includes('CM') || position.includes('DM') || position.includes('AM') || position.includes('وسط')) return 'bg-green-100 text-green-800 border-green-200';
-    return 'bg-red-100 text-red-800 border-red-200';
-  };
-
-  const getTopMetrics = (metrics: any) => {
-    if (!metrics) return [];
-    const metricNames: { [key: string]: string } = {
-      pace: 'السرعة', shooting: 'التسديد', passing: 'التمرير', dribbling: 'المراوغة', defense: 'الدفاع', physical: 'القوة البدنية',
-      diving: 'الغوص', handling: 'التعامل مع الكرة', kicking: 'الركل', reflexes: 'ردود الأفعال', positioning: 'التمركز', speed: 'السرعة'
-    };
-    const metricEntries = Object.entries(metrics).map(([key, value]) => ({ name: metricNames[key] || key, value: value as number }));
-    return metricEntries.sort((a, b) => b.value - a.value);
-  };
-
-  const allMetrics = getTopMetrics(player?.metrics);
+  if (!player && !addMode) return null;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto" dir="rtl">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-right text-xl font-bold text-slate-900 flex items-center justify-between">
-            <Button variant="outline" size="sm" onClick={onClose}><X className="w-4 h-4" /></Button>
-            <span>{addMode ? "إضافة لاعب جديد" : isEditing ? `تعديل ${player?.name}`: `${player?.name} - التفاصيل الكاملة`}</span>
-            <div>
-              {!addMode && player && !isEditing && <Button variant="outline" size="sm" onClick={() => setIsEditing(true)}><Edit className="w-4 h-4 ml-2" /> تعديل</Button>}
-              {!addMode && player && <Button variant="destructive" onClick={handleDeletePlayer}><Trash2 className="w-4 h-4 ml-2" /> حذف</Button>}
-            </div>
+          <DialogTitle>
+            {addMode ? "إضافة لاعب جديد" : player?.name}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-6">
-          {isEditing || addMode ? (
-            <PlayerForm initialData={player || undefined} onPlayerSaved={handlePlayerSaved} onClose={() => setIsEditing(false)} />
-          ) : (
-            <>
-              {/* Player details view */}
-              {player && (
-                <>
-                  {/* ... same player details view as before ... */}
-                </>
-              )}
-              {/* Reports Section */}
-              {player && !addMode && (
-                <div>
-                  <h4 className="text-lg font-bold text-slate-900 mb-4 text-right">تقارير المباريات</h4>
-                  <Button onClick={() => setShowReportForm(!showForm)}>{showForm ? 'إلغاء' : 'إضافة تقرير'}</Button>
-                  {showForm && (
-                    <AddReportForm playerId={player.id} onSaved={() => {
-                      queryClient.invalidateQueries({ queryKey: ["reports", playerId] });
-                      setShowReportForm(false);
-                    }} />
-                  )}
-                  {reportsLoading && <p>جارٍ تحميل التقارير...</p>}
-                  <ul className="mt-4 space-y-4">
-                    {reports.map((report: any) => (
-                      <li key={report.id} className="border-b py-2">
-                        <p>{report.match_date} - ضد {report.opponent}</p>
-                        <p>التقييم: {report.rating}</p>
-                        <p className="text-sm text-gray-500">{report.notes}</p>
-                        <Button variant="destructive" size="sm" onClick={async () => {
-                          if (window.confirm("هل أنت متأكد من حذف هذا التقرير؟")) {
-                            await dbService.deleteReport(report.id);
-                            queryClient.invalidateQueries({ queryKey: ["reports", playerId] });
-                          }
-                        }}>حذف</Button>
-                      </li>
-                    ))}
-                  </ul>
+        {showForm ? (
+          <PlayerForm
+            player={addMode ? null : player}
+            onPlayerSaved={handlePlayerSaved}
+            onCancel={() => {
+              setShowForm(false);
+              if (addMode) onClose();
+            }}
+          />
+        ) : (
+          player && (
+            <div className="space-y-6">
+              <div className="flex justify-between items-start">
+                <div className="space-y-2">
+                  <h2 className="text-2xl font-bold">{player.name}</h2>
+                  <div className="flex gap-2">
+                    <Badge variant="secondary">{player.position}</Badge>
+                    <Badge variant="outline">{player.age} سنة</Badge>
+                    <Badge variant="outline">{player.club}</Badge>
+                  </div>
                 </div>
-              )}
-            </>
-          )}
-        </div>
+                <div className="flex gap-2">
+                  <Button onClick={() => setShowForm(true)}>
+                    تعديل
+                  </Button>
+                </div>
+              </div>
+
+              <Tabs defaultValue="overview" className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="overview">نظرة عامة</TabsTrigger>
+                  <TabsTrigger value="reports">التقارير</TabsTrigger>
+                  <TabsTrigger value="stats">الإحصائيات</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="overview" className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>المعلومات الأساسية</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="flex justify-between">
+                          <span>الاسم:</span>
+                          <span className="font-medium">{player.name}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>العمر:</span>
+                          <span className="font-medium">{player.age} سنة</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>المركز:</span>
+                          <span className="font-medium">{player.position}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>النادي:</span>
+                          <span className="font-medium">{player.club}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>التقييم:</span>
+                          <span className="font-medium">{player.rating}/10</span>
+                        </div>
+                        {showCurrency && (
+                          <div className="flex justify-between">
+                            <span>القيمة السوقية:</span>
+                            <span className="font-medium">
+                              {player.market_value.toLocaleString()} {currency}
+                            </span>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>تفاصيل إضافية</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="flex justify-between">
+                          <span>الطول:</span>
+                          <span className="font-medium">{player.height} سم</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>الوزن:</span>
+                          <span className="font-medium">{player.weight} كغ</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>القدم المفضلة:</span>
+                          <span className="font-medium">{player.preferred_foot}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>الجنسية:</span>
+                          <span className="font-medium">{player.nationality}</span>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  {player.notes && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>الملاحظات</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-700">{player.notes}</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                </TabsContent>
+
+                <TabsContent value="reports" className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <h3 className="text-lg font-semibold">التقارير</h3>
+                    <Button className="gap-2">
+                      <Plus className="w-4 h-4" />
+                      إضافة تقرير
+                    </Button>
+                  </div>
+
+                  <div className="space-y-4">
+                    {Array.isArray(reports) && reports.map((report: any) => (
+                      <Card key={report.id}>
+                        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                          <CardTitle className="text-sm font-medium">
+                            {report.match_date ? new Date(report.match_date).toLocaleDateString('ar-SA') : 'تاريخ غير محدد'}
+                          </CardTitle>
+                          <Button variant="ghost" size="sm">
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </CardHeader>
+                        <CardContent>
+                          <p className="text-sm text-gray-600">{report.notes || 'لا توجد ملاحظات'}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                    {(!Array.isArray(reports) || reports.length === 0) && (
+                      <p className="text-center text-gray-500 py-8">
+                        لا توجد تقارير لهذا اللاعب بعد
+                      </p>
+                    )}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="stats" className="space-y-4">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>الإحصائيات</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-center text-gray-500 py-8">
+                        سيتم إضافة الإحصائيات قريباً
+                      </p>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+          )
+        )}
       </DialogContent>
     </Dialog>
   );
-};
-
-export default PlayerDetailModal;
+}

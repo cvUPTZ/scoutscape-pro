@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabaseClient';
 
@@ -50,7 +51,9 @@ export const fetchReportsForPlayer = async (playerId: number) => {
 };
 
 export const useReports = (playerId?: number) => {
-  return useQuery(["reports", playerId], () => fetchReportsForPlayer(playerId as number), {
+  return useQuery({
+    queryKey: ["reports", playerId],
+    queryFn: () => fetchReportsForPlayer(playerId as number),
     enabled: !!playerId,
     staleTime: 1000 * 10,
     refetchOnWindowFocus: false,
